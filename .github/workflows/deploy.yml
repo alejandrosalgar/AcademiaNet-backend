@@ -1,0 +1,173 @@
+name: Deploy To AWS
+run-name: Deploy to AWS | Triggered by ${{github.ref_name}} @${{github.actor}}
+on:
+  push:
+    branches:
+      - prod
+  pull_request:
+    branches:
+      - prod
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Pick an environment to deploy"
+        type: environment
+        required: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+permissions:
+  id-token: write
+  contents: write
+
+env:
+  CI_TOKEN: ${{ secrets.CI_TOKEN }}
+
+jobs:
+  set_environment:
+    if: github.event_name != 'pull_request'
+    name: "Detect Environment"
+    outputs:
+      env_value: ${{ steps.setenv.outputs.env }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Trigger Branch
+        id: setenv
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            echo "env=$(echo ${{inputs.environment}})" >> "$GITHUB_OUTPUT"
+          elif [[ "${GITHUB_REF_NAME}" == "prod" ]]; then
+            echo "env=prod" >> "$GITHUB_OUTPUT"
+          fi
+  echo_environment:
+    if: github.event_name != 'pull_request'
+    name: "Echo Environment"
+    needs: set_environment
+    runs-on: ubuntu-latest
+    env:
+      ENV_VAL: ${{needs.set_environment.outputs.env_value}}
+    steps:
+      - name: Environment Result
+        run: |
+          echo "### Deploying to $ENV_VAL :rocket:" >> $GITHUB_STEP_SUMMARY
+  linter:
+    name: "Run linter (Flake8)"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Fetch all branches and tags
+        run: git fetch --prune --unshallow
+      - name: Find Changed Python Files
+        id: find_files
+        run: |
+          # Get a list of changed Python files in this commit
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }} ${{ github.sha }} | grep '\.py$' || true)
+          echo "Changed Python files:"
+          echo "$CHANGED_FILES"
+          echo "changed_files=$(echo ${CHANGED_FILES})" >> $GITHUB_OUTPUT
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        if: steps.find_files.outputs.changed_files != ''
+        with:
+          python-version: 3.8
+      - name: Install Black
+        if: steps.find_files.outputs.changed_files != ''
+        run: pip install black==23.7.0
+      - name: Run Black
+        if: steps.find_files.outputs.changed_files != ''
+        run: black ${{ steps.find_files.outputs.changed_files }} --line-length=100 --verbose
+      - name: Install Flake8
+        if: steps.find_files.outputs.changed_files != ''
+        run: pip install flake8==6.1.0
+      - name: Run linter
+        if: steps.find_files.outputs.changed_files != ''
+        run: flake8 ${{ steps.find_files.outputs.changed_files }} --max-line-length=100
+      - name: Extract branch name
+        shell: bash
+        if: steps.find_files.outputs.changed_files != ''
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        if: steps.find_files.outputs.changed_files != ''
+        with:
+          github_token: ${{ secrets.CI_TOKEN }}
+          message: "ci: Black formatter changes"
+          branch: ${{ steps.extract_branch.outputs.branch }}
+  semantic-release:
+    if: github.event_name != 'pull_request'
+    name: "Semantic Release"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Fetch all branches and tags
+        run: git fetch --prune --unshallow
+      # Set up Node
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18
+      - name: Config Git
+        run: |
+          git config --global user.email "cdbot@neostella.com"
+          git config --global user.name "cdbot-neostella"
+      - name: Run Semantic Release
+        run: npx semantic-release
+        env:
+          GH_TOKEN: ${{ secrets.CI_TOKEN }}
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.CI_TOKEN }}
+          message: "ci: Update project version ${{ env.VERSION }}"
+          branch: ${{ github.event.pull_request.base.ref }}
+  deploy:
+    name: "Deploy"
+    if: github.event_name != 'pull_request'
+    needs: [set_environment, semantic-release]
+    environment: ${{needs.set_environment.outputs.env_value}}
+    env: 
+      ENV_VAL: ${{needs.set_environment.outputs.env_value}}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - name: Downloading submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          token: ${{ secrets.CI_TOKEN }}
+      # Set up Node
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      # Install npm and plugins
+      - name: Install npm
+        run: |
+          npm ci
+          npm i
+      # Configure AWS credentials
+      - name: Connecting to AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          role-session-name: aws-gh-session
+          aws-region: ${{ secrets.AWS_REGION }}
+      # Deploy serverless
+      - name: Serverless Deploy
+        run: python scripts/ci_deploy_services.py --stage $ENV_VAL
+      # Download swagger.json from API Gateway and Upload it to S3
+      - name: Swagger Documentation
+        run: |
+          aws apigateway get-export --parameters extensions='apigateway' --rest-api-id ${{ secrets.API_GATEWAY_ID }} --region ${{secrets.AWS_REGION}} --stage-name $ENV_VAL-apiworkrelaycore --stage $ENV_VAL --export-type swagger swagger.json
+          mv -f swagger.json ./swagger
+          aws s3 sync ./swagger s3://${{ secrets.AWS_S3 }} --delete --region ${{secrets.AWS_REGION}}

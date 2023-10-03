@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Content-Type",
+        "required": "true",
+        "type": "string",
+        "description": "application/json"
+    },
+    {
+        "name": "version",
+        "required": "false",
+        "type": "string",
+        "description": "You may specify with a negative integer a previous version of the API to be executed"
+    }
+]

@@ -1,0 +1,4 @@
+REGION: ${file(./../../variables.json):AWSREGION}
+STAGE: ${env:SLS_STAGE, file(./../../variables.json):AWSSTAGE, file(./../../../variables.json):AWSSTAGE}
+PROFILE: ${file(./../../variables.json):PROFILE, file(./../../../variables.json):PROFILE}
+RESOURCE_METHOD: CI_SCRIPT

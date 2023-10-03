@@ -1,0 +1,4 @@
+# serverless-compose.yml
+services:
+  users:
+    path: services/users

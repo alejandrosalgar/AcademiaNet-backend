@@ -1,0 +1,5 @@
+{
+    "AWSREGION": "us-east-1",
+    "AWSSTAGE": "dev",
+    "PROFILE": "AppTemplate"
+}
