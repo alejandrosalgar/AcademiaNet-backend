@@ -1,5 +1,5 @@
 frameworkVersion: "3"
-service: apiworkrelay
+service: pocbackendarch
 provider:
   name: aws
   runtime: python3.9
