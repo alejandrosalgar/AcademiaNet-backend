@@ -1,0 +1,37 @@
+Resources:
+  TenantsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ${self:service}-${self:provider.stage}-tenants
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false 
+        BlockPublicPolicy: false 
+        IgnorePublicAcls: false 
+        RestrictPublicBuckets: false 
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - POST
+              - PUT
+              - HEAD
+            AllowedOrigins:
+              - '*'
+  
+  TenantsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref TenantsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:DeleteObject'
+            Resource:
+              - !Join ['/', [!GetAtt [TenantsBucket, Arn], '*']]
+            Principal: '*'

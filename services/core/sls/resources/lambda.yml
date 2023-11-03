@@ -1,0 +1,9 @@
+Resources:
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn: RotateSecretLambdaFunction
+    Properties:
+      FunctionName:
+        "Fn::GetAtt": [RotateSecretLambdaFunction, Arn]
+      Action: lambda:InvokeFunction
+      Principal: "secretsmanager.amazonaws.com"

@@ -1,0 +1,61 @@
+TenantInit:
+  handler: src/functions/tenant_init.lambda_handler
+  timeout: 120
+  environment:
+    RESOURCE_METHOD: TenantInit
+    USER_POOL_ID:
+      Ref: MasterUserPoolneostella
+    IDENTITY_POOL_ID:
+      Ref: MasterIdentityPoolneostella
+    USER_POOL_CLIENT_ID:
+      Ref: MasterUserPoolClientneostella
+    USER_EMAIL: carlos.bolivar@neostella.com
+    USER_FIRST_NAME: Carlos
+    USER_LAST_NAME: Bolivar
+    TENANT_NAME: neostella
+    SES_DOMAIN: ${self:custom.common.environment.SES_DOMAIN}
+    SES_EMAIL_ARN: arn:aws:ses:${self:provider.region}:${aws:accountId}:identity/${self:custom.common.environment.SES_DOMAIN}
+    TENANTS_BUCKET: ${self:service}-${self:provider.stage}-tenants
+  package: 
+    patterns:
+      - './../src/functions/tenant_init.py'
+      - './../src/email_templates/**'
+  iamRoleStatements:
+    - Effect: "Allow"
+      Resource:
+        - arn:aws:s3:::${self:service}-${self:provider.stage}-tenants/*
+        - arn:aws:s3:::${self:service}-${self:provider.stage}-tenants
+      Action:
+        - s3:ListBucket
+        - s3:GetObject
+        - s3:HeadObject
+    - Effect: "Allow"
+      Resource: arn:aws:rds:${self:provider.region}:${aws:accountId}:cluster:${self:resources.1.Resources.MasterUserDB.Properties.DBClusterIdentifier}
+      Action:
+        - rds-data:ExecuteStatement
+    - Effect: "Allow"
+      Resource:
+        - Ref: DatabaseKeys
+      Action:
+        - secretsmanager:GetSecretValue
+    - Effect: "Allow"
+      Resource: "*"
+      Action:
+        - ses:ListIdentities
+        - ses:ListIdentityPolicies
+        - ses:VerifyEmailIdentity
+        - ses:VerifyDomainIdentity
+        - ses:PutIdentityPolicy
+    - Effect: "Allow"
+      Resource: 
+        Fn::Join:
+          - ""
+          -
+            - arn:aws:cognito-idp:${self:provider.region}:${aws:accountId}:userpool/
+            - Ref: MasterUserPoolneostella
+      Action:
+        - cognito-idp:AdminCreateUser
+        - cognito-idp:AdminGetUser
+
+
+

@@ -3,12 +3,25 @@
   "version": "1.0.0",
   "description": "Backend web app architecture POC",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "config": {
     "profile": "AppTemplate",
-    "service": "test-poc"
+    "service": "users"
+  },
+  "scripts": {
+    "documentation": "sls downloadDocumentation --outputFileName swagger.yml",
+    "python_tasks": "python ci_tasks_flow.py",
+    "python_tasks_fixture": "python ci_tasks_fixture.py",
+    "migrations": "python ci_db_migrations.py",
+    "create_objects": "python ci_create_objects.py",
+    "layers": "python ci_layers_creation.py",
+    "service_env": "serverless %npm_package_config_service%:export-env --aws-profile %npm_package_config_profile%",
+    "core_env": "serverless core-infra:export-env --aws-profile %npm_package_config_profile%",
+    "core_local_env": "npm-run-all core_env python_tasks_fixture",
+    "win_deploy": "cmd /C \"set AWS_PROFILE=%npm_package_config_profile%&&serverless %npm_package_config_service%:deploy\"",
+    "win_full_deploy": "cmd /C \"set AWS_PROFILE=%npm_package_config_profile%&&serverless deploy\"",
+    "win_aws_setup": "npm-run-all win_full_deploy core_local_env python_tasks",
+    "win_aws_feature_setup": "npm-run-all core_local_env python_tasks win_deploy",
+    "offline": "cmd /C \"set AWS_PROFILE=%npm_package_config_profile%&&serverless %npm_package_config_service%:offline --noAuth --noTimeout\""
   },
   "author": "",
   "license": "ISC",
@@ -26,6 +39,7 @@
     "@serverless/compose": "^1.3.0",
     "husky": "^8.0.3",
     "npm-run-all": "^4.1.5",
-    "semantic-release": "^21.0.7"
+    "semantic-release": "^21.0.7",
+    "serverless-iam-roles-per-function": "^3.2.0"
   }
 }

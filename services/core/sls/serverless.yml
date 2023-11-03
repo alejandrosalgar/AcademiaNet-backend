@@ -1,0 +1,81 @@
+service: ${self:custom.common.service}core
+frameworkVersion: ${self:custom.common.frameworkVersion}
+
+plugins:
+  - serverless-python-requirements
+  - serverless-aws-documentation
+  - serverless-export-env
+  - serverless-prune-plugin
+  - serverless-deployment-bucket
+  - serverless-iam-roles-per-function
+
+provider:
+  name: aws
+  runtime: ${self:custom.common.provider.runtime}
+
+  region: ${self:custom.common.provider.region}
+  stage: ${self:custom.common.provider.stage}
+
+  deploymentBucket:
+    name: ${self:custom.common.service}-${self:provider.stage}-deployment-s3bucketenvironment
+    
+  memorySize: ${self:custom.common.provider.memorySize}
+  timeout: ${self:custom.common.provider.timeout}
+
+  environment:
+    REGION_NAME: ${self:provider.region}
+    STAGE: ${self:provider.stage}
+    PROFILE: ${self:custom.common.environment.PROFILE}
+    RESOURCE_METHOD: ${self:custom.common.environment.RESOURCE_METHOD}
+    DATABASE_NAME: ${self:resources.1.Resources.MasterUserDB.Properties.DatabaseName}
+    DB_CLUSTER_ARN: arn:aws:rds:${self:provider.region}:${aws:accountId}:cluster:${self:resources.1.Resources.MasterUserDB.Properties.DBClusterIdentifier}
+    CORALOGIX_SECRET: ${self:resources.3.Resources.CoralogixKey.Properties.Name}
+    DB_CREDENTIALS_SECRETS_STORE_ARN:
+      Ref: DatabaseKeys
+
+  apiGateway:
+    restApiId:
+      Ref: ApiGatewayRestApi
+    restApiRootResourceId:
+      Fn::GetAtt:
+        - ApiGatewayRestApi
+        - RootResourceId
+
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Resource:
+            Ref: CoralogixKey
+          Action:
+            - secretsmanager:GetSecretValue
+
+  layers:
+    - Ref: PythonRequirementsLambdaLayer
+
+package: 
+  individually: true
+  patterns:
+    - '!./**'
+
+functions:
+  - ${file(./functions/cognito.yml)}
+  - ${file(./functions/rotate_secret.yml)}
+  - ${file(./functions/tenant.yml)}
+
+resources:
+  - ${file(./resources/api_gateway.yml)}
+  - ${file(./resources/rds.yml)}
+  - ${file(./resources/lambda.yml)}
+  - ${file(./resources/secrets_manager.yml)}
+  - ${file(./resources/iam.yml)}
+  - ${file(./resources/cognito.yml)}
+  - ${file(./resources/s3.yml)}
+
+custom:
+  common: ${file(./../../../serverless.common.yml)}
+  pythonRequirements: ${self:custom.common.pythonRequirements}
+  export-env: ${self:custom.common.export-env}
+  prune: ${self:custom.common.prune}
+  serverless-iam-roles-per-function:
+    defaultInherit: true

@@ -1,4 +1,8 @@
 # serverless-compose.yml
 services:
+  core:
+    path: services/core/sls
+
   users:
-    path: services/users
+    path: services/users/sls
+    dependsOn: core

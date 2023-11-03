@@ -1,4 +1,9 @@
-REGION: ${file(./../../variables.json):AWSREGION}
-STAGE: ${env:SLS_STAGE, file(./../../variables.json):AWSSTAGE, file(./../../../variables.json):AWSSTAGE}
 PROFILE: ${file(./../../variables.json):PROFILE, file(./../../../variables.json):PROFILE}
 RESOURCE_METHOD: CI_SCRIPT
+SES_DOMAIN: ${file(./../../variables.json):SES_DOMAIN, file(./../../../variables.json):SES_DOMAIN}
+SES_EMAIL: ${file(./../../variables.json):SES_EMAIL, file(./../../../variables.json):SES_EMAIL}
+PROJECT: ${file(./../../variables.json):PROJECT, file(./../../../variables.json):PROJECT}
+CLOUD_FRONT_URL: ${file(./../../variables.json):CLOUD_FRONT_URL, file(./../../../variables.json):CLOUD_FRONT_URL}
+COMPANY: ${file(./../../variables.json):COMPANY, file(./../../../variables.json):COMPANY}
+URL_COMPANY: ${file(./../../variables.json):URL_COMPANY, file(./../../../variables.json):URL_COMPANY}
+LOGO: ${file(./../../variables.json):LOGO, file(./../../../variables.json):LOGO}

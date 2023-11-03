@@ -1,5 +1,12 @@
 {
-    "AWSREGION": "us-east-1",
+    "AWSREGION": "us-east-2",
     "AWSSTAGE": "dev",
-    "PROFILE": "AppTemplate"
+    "PROFILE": "AppTemplate",
+    "SES_EMAIL": "alejandro.mejia@neostella.com",
+    "SES_DOMAIN": "alejandro.mejia@neostella.com",
+    "PROJECT": "PocBackend",
+    "CLOUD_FRONT_URL" : "https://dev.neojumpstart.com/",
+    "COMPANY": "Neostella",
+    "URL_COMPANY": "https://www.neostella.com/",
+    "LOGO": "https://s3.us-east-2.amazonaws.com/neojumpstart.src.com/PNG_NeoJS_Black1.png"
 }
