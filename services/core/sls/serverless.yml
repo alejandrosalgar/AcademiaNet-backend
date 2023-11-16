@@ -23,13 +23,17 @@ provider:
   timeout: ${self:custom.common.provider.timeout}
 
   environment:
+    APP_NAME: ${self:custom.common.service}
+    CORALOGIX_URL: ${self:custom.common.environment.CORALOGIX_URL}
+    CORALOGIX_KEY_SECRET_NAME: ${self:resources.3.Resources.CoralogixKey.Properties.Name}
+    CUSTOM_LOGGER_TABLE_NAME:
+      Ref: CustomLoggerTable
     REGION_NAME: ${self:provider.region}
     STAGE: ${self:provider.stage}
     PROFILE: ${self:custom.common.environment.PROFILE}
     RESOURCE_METHOD: ${self:custom.common.environment.RESOURCE_METHOD}
     DATABASE_NAME: ${self:resources.1.Resources.MasterUserDB.Properties.DatabaseName}
     DB_CLUSTER_ARN: arn:aws:rds:${self:provider.region}:${aws:accountId}:cluster:${self:resources.1.Resources.MasterUserDB.Properties.DBClusterIdentifier}
-    CORALOGIX_SECRET: ${self:resources.3.Resources.CoralogixKey.Properties.Name}
     DB_CREDENTIALS_SECRETS_STORE_ARN:
       Ref: DatabaseKeys
 
@@ -49,6 +53,12 @@ provider:
             Ref: CoralogixKey
           Action:
             - secretsmanager:GetSecretValue
+        - Effect: "Allow"
+          Resource:
+            Fn::GetAtt: [ CustomLoggerTable, Arn ]
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
 
   layers:
     - Ref: PythonRequirementsLambdaLayer
@@ -71,6 +81,7 @@ resources:
   - ${file(./resources/iam.yml)}
   - ${file(./resources/cognito.yml)}
   - ${file(./resources/s3.yml)}
+  - ${file(./resources/dynamodb.yml)}
 
 custom:
   common: ${file(./../../../serverless.common.yml)}

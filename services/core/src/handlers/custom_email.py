@@ -5,7 +5,7 @@ import urllib.parse as parse
 
 from core_utils.boto3_utils.s3 import S3_CLIENT, S3_RESOURCE
 from core_utils.boto3_utils.constants import TENANTS_BUCKET
-from core_utils.boto3_utils.rds import rds_execute_statement
+from core_utils.sql_handler.sql_builder import SQLBuilder
 
 TEMPLATE_REGEX = r"{{(.+?)}}"
 URL = os.environ["CLOUD_FRONT_URL"]
@@ -28,7 +28,7 @@ def table_exists(table_name: str) -> bool:
                  table_schema = 'public' AND
                  table_name = '{table_name}'
             );"""
-    result = rds_execute_statement(sql)[0]["exists"]
+    result = SQLBuilder(sql).execute()[0]["exists"]
     return result
 
 
@@ -38,7 +38,7 @@ def get_tenant_details(tenant_id: str) -> tuple:
     # Get support email
     if table_exists("tenant_configuration"):
         sql = f"SELECT * FROM tenant_configuration WHERE tenant_id = '{tenant_id}'"
-        tenant_configuration = rds_execute_statement(sql)
+        tenant_configuration = SQLBuilder(sql).execute("tenant_configuration", False)
         if len(tenant_configuration):
             support_email = tenant_configuration[0]["support_email"]
 
@@ -46,7 +46,7 @@ def get_tenant_details(tenant_id: str) -> tuple:
     if table_exists("tenant_logos") and table_exists("logos"):
         sql = f"""SELECT tl.*, l.logo_path FROM tenant_logos tl LEFT JOIN logos l
          ON tl.logo_id = l.logo_id WHERE tl.tenant_id = '{tenant_id}' AND tl.logo_type = 'light'"""
-        result = rds_execute_statement(sql)
+        result = SQLBuilder(sql).execute("tenant_logos", False)
         if len(result):
             logo_path = result[0]["logo_path"]
 
@@ -121,9 +121,9 @@ def add_subdomain_to_url(tenant_data: dict):
     globals()["URL"] = "/".join(url_split)
 
 
-def set_tenant_fields(cognito_user_id: str, user_pool_id: str):
+def set_tenant_fields(user_pool_id: str):
     sql = f"SELECT * FROM tenants_master WHERE user_pool_id = '{user_pool_id}'"
-    tenant_data = rds_execute_statement(sql)[0]
+    tenant_data = SQLBuilder(sql).execute("tenants_master")[0]
     add_subdomain_to_url(tenant_data)
     if tenant_data.get("tenant_name"):
         globals()["TENANT_NAME"] = tenant_data.get("tenant_name")

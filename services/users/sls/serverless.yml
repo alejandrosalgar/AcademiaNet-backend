@@ -23,18 +23,23 @@ provider:
   timeout: ${self:custom.common.provider.timeout}
 
   environment:
+    APP_NAME: ${self:custom.common.service}-${self:custom.common.provider.stage}
+    SERVICE_NAME: users
+    CORALOGIX_URL: ${self:custom.common.environment.CORALOGIX_URL}
+    CORALOGIX_KEY_SECRET_NAME: 
+      Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-CoralogixSecret
     REGION_NAME: ${self:provider.region}
     STAGE: ${self:provider.stage}
     PROFILE: ${self:custom.common.environment.PROFILE}
     RESOURCE_METHOD: ${self:custom.common.environment.RESOURCE_METHOD}
+    CUSTOM_LOGGER_TABLE_NAME:
+      Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-CustomLoggerTable
     DATABASE_NAME: 
       Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-DatabaseName
     DB_CLUSTER_ARN:
       Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-DbClusterARN
     DB_CREDENTIALS_SECRETS_STORE_ARN:
       Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-DbCredentialsSecretsStoreARN
-    CORALOGIX_SECRET:
-      Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-CoralogixSecret
     APPKEY_SECRET_ARN:
       Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-AppKeySecretARN
 
@@ -62,6 +67,12 @@ provider:
             - rds-data:BeginTransaction
             - rds-data:CommitTransaction
             - rds-data:RollbackTransaction
+        - Effect: "Allow"
+          Resource:
+            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-CustomLoggerTableARN
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
 
   layers:
     - Ref: PythonRequirementsLambdaLayer

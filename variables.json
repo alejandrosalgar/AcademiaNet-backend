@@ -2,6 +2,7 @@
     "AWSREGION": "us-east-2",
     "AWSSTAGE": "dev",
     "PROFILE": "AppTemplate",
+    "CORALOGIX_URL": "https://ingress.cx498.coralogix.com/api/v1/logs",
     "SES_EMAIL": "alejandro.mejia@neostella.com",
     "SES_DOMAIN": "alejandro.mejia@neostella.com",
     "PROJECT": "PocBackend",

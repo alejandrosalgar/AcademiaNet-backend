@@ -17,10 +17,10 @@ def lambda_handler(event, _):
     authorization = Permission(
         cognito_user_id=user_id,
         tenant_id=tenant_id,
-        module=Modules.ADMIN.value,
-        component=Components.USERS.value,
-        subcomponent=Subcomponents.GENERAL.value,
-        action=Actions.CAN_UPDATE.value,
+        module=Modules.ADMIN,
+        component=Components.USERS,
+        subcomponent=Subcomponents.GENERAL,
+        action=Actions.CAN_UPDATE,
     )
     authorization.check_permissions()
 

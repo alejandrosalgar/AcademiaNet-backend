@@ -4,6 +4,7 @@ SES_DOMAIN: ${file(./../../variables.json):SES_DOMAIN, file(./../../../variables
 SES_EMAIL: ${file(./../../variables.json):SES_EMAIL, file(./../../../variables.json):SES_EMAIL}
 PROJECT: ${file(./../../variables.json):PROJECT, file(./../../../variables.json):PROJECT}
 CLOUD_FRONT_URL: ${file(./../../variables.json):CLOUD_FRONT_URL, file(./../../../variables.json):CLOUD_FRONT_URL}
+CORALOGIX_URL: ${file(./../../variables.json):CORALOGIX_URL, file(./../../../variables.json):CORALOGIX_URL}
 COMPANY: ${file(./../../variables.json):COMPANY, file(./../../../variables.json):COMPANY}
 URL_COMPANY: ${file(./../../variables.json):URL_COMPANY, file(./../../../variables.json):URL_COMPANY}
 LOGO: ${file(./../../variables.json):LOGO, file(./../../../variables.json):LOGO}

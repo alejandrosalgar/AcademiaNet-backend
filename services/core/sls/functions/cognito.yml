@@ -1,5 +1,5 @@
 CustomEmail:
-  handler: src/functions/custom_email.lambda_handler
+  handler: src/handlers/custom_email.lambda_handler
   environment:
     RESOURCE_METHOD: CustomEmail
     TENANTS_BUCKET: ${self:service}-${self:provider.stage}-tenants
@@ -10,7 +10,7 @@ CustomEmail:
     LOGO: ${self:custom.common.environment.LOGO}
   package: 
     patterns:
-      - './../src/functions/custom_email.py'
+      - './../src/handlers/custom_email.py'
   iamRoleStatements:
     - Effect: "Allow"
       Resource: arn:aws:rds:${self:provider.region}:${aws:accountId}:cluster:${self:resources.1.Resources.MasterUserDB.Properties.DBClusterIdentifier}

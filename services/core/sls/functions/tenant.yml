@@ -1,5 +1,5 @@
 TenantInit:
-  handler: src/functions/tenant_init.lambda_handler
+  handler: src/handlers/tenant_init.lambda_handler
   timeout: 120
   environment:
     RESOURCE_METHOD: TenantInit
@@ -18,7 +18,7 @@ TenantInit:
     TENANTS_BUCKET: ${self:service}-${self:provider.stage}-tenants
   package: 
     patterns:
-      - './../src/functions/tenant_init.py'
+      - './../src/handlers/tenant_init.py'
       - './../src/email_templates/**'
   iamRoleStatements:
     - Effect: "Allow"

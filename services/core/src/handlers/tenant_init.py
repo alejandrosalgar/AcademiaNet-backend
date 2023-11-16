@@ -8,7 +8,7 @@ from core_utils.boto3_utils.constants import (
     SERVICE_NAME,
     TENANTS_BUCKET,
 )
-from core_utils.boto3_utils.rds import rds_execute_statement
+from core_utils.sql_handler.sql_builder import SQLBuilder
 from core_utils.boto3_utils.cognito import COGNITO_CLIENT
 from core_utils.boto3_utils.s3 import S3_RESOURCE
 from core_utils.boto3_utils.ses import SES_CLIENT
@@ -43,7 +43,7 @@ def create_email_access_role_policy(email_arn: str) -> dict:
 
 def insert_tenant():
     sql = f"""SELECT COUNT(*) as count FROM tenants_master WHERE tenant_name = '{TENANT_NAME}'"""
-    count = rds_execute_statement(sql)[0]["count"]
+    count = SQLBuilder(sql).execute("tenants_master")[0]["count"]
     if not count:
         sql_insert_tenant = (
             "INSERT INTO tenants_master "
@@ -55,20 +55,20 @@ def insert_tenant():
             f"'{TENANT_NAME}'"
             ")"
         )
-        rds_execute_statement(sql_insert_tenant)
+        SQLBuilder(sql_insert_tenant).execute("tenants_master", False)
 
 
 def get_tenant_id():
     global TENANT_ID
     sql_tenant_id = f"SELECT tenant_id FROM tenants_master WHERE tenant_name='{TENANT_NAME}'"
-    TENANT_ID = rds_execute_statement(sql_tenant_id)[0]["tenant_id"]
+    TENANT_ID = SQLBuilder(sql_tenant_id).execute("tenants_master", True)[0]["tenant_id"]
 
 
 def create_default_role():
     global role_id
     sql = f"""SELECT COUNT(*) as count FROM roles_master WHERE role = 'default'
     AND type = 'default' AND  tenant_id = '{TENANT_ID}'"""
-    count = rds_execute_statement(sql)[0]["count"]
+    count = SQLBuilder(sql).execute("roles_master")[0]["count"]
     if not count:
         sql_default_role_creation = (
             "INSERT INTO roles_master (role, tenant_id, type)"
@@ -78,11 +78,11 @@ def create_default_role():
             f"'default'"
             ")"
         )
-        rds_execute_statement(sql_default_role_creation)
+        SQLBuilder(sql_default_role_creation).execute("roles_master", False)
 
     sql = f"""SELECT COUNT(*) as count FROM roles_master WHERE role = 'account'
       AND type = 'other' AND  tenant_id = '{TENANT_ID}'"""
-    count = rds_execute_statement(sql)[0]["count"]
+    count = SQLBuilder(sql).execute("roles_master")[0]["count"]
     if not count:
         sql_create_account_role = (
             "INSERT INTO roles_master ( role, tenant_id, type) "
@@ -92,11 +92,11 @@ def create_default_role():
             f"'other'"
             ") RETURNING role_id"
         )
-        role_id = rds_execute_statement(sql_create_account_role)[0]["role_id"]
+        role_id = SQLBuilder(sql_create_account_role).execute("roles_master", False)[0]["role_id"]
     else:
         sql = f"""SELECT role_id FROM roles_master WHERE role = 'account'
           AND type = 'other' AND  tenant_id = '{TENANT_ID}'"""
-        role_id = rds_execute_statement(sql)[0]["role_id"]
+        role_id = SQLBuilder(sql).execute("roles_master", False)[0]["role_id"]
 
 
 def create_user():
@@ -122,7 +122,7 @@ def create_user():
 
     sql = f"""SELECT COUNT(*) as count FROM users_master WHERE
       cognito_user_id = '{cognito_user_id}' AND tenant_id = '{TENANT_ID}'"""
-    count = rds_execute_statement(sql)[0]["count"]
+    count = SQLBuilder(sql).execute("users_master")[0]["count"]
     if not count:
         sql_insert_user = (
             f"INSERT INTO users_master (cognito_user_id, first_name, last_name, email, tenant_id) "
@@ -134,32 +134,32 @@ def create_user():
             f"'{TENANT_ID}'"
             ")"
         )
-        rds_execute_statement(sql_insert_user)
+        SQLBuilder(sql_insert_user).execute("users_master", False)
 
     # assignation of the default role
     sql_default_role_id = (
         f"SELECT role_id FROM roles_master WHERE tenant_id='{TENANT_ID}' AND type = 'default'"
     )
-    default_role_id = rds_execute_statement(sql_default_role_id)
+    default_role_id = SQLBuilder(sql_default_role_id).execute("roles_master", False)
 
     for role in default_role_id:
         sql = f"""SELECT COUNT(*) as count FROM user_roles
         WHERE cognito_user_id = '{cognito_user_id}'
           AND role_id = '{role["role_id"]}' AND  tenant_id = '{TENANT_ID}'"""
-        count = rds_execute_statement(sql)[0]["count"]
+        count = SQLBuilder(sql).execute("user_roles")[0]["count"]
         if not count:
             assign_default_role_query = (
                 "INSERT INTO user_roles"
                 "(tenant_id, cognito_user_id, role_id) VALUES"
                 f"('{TENANT_ID}','{cognito_user_id}','{role['role_id']}');"
             )
-            rds_execute_statement(assign_default_role_query)
+            SQLBuilder(assign_default_role_query).execute("user_roles", False)
 
 
 def assign_role():
     sql = f"""SELECT COUNT(*) as count FROM roles_master WHERE role = 'admin'
       AND type = 'admin' AND  tenant_id = '{TENANT_ID}'"""
-    count = rds_execute_statement(sql)[0]["count"]
+    count = SQLBuilder(sql).execute("roles_master")[0]["count"]
     if not count:
         sql_create_role = (
             "INSERT INTO roles_master ( role, tenant_id, type) "
@@ -169,16 +169,16 @@ def assign_role():
             f"'admin'"
             ")"
         )
-        rds_execute_statement(sql_create_role)
+        SQLBuilder(sql_create_role).execute("roles_master", False)
 
     sql_default_role_id = (
         f"SELECT role_id FROM roles_master WHERE tenant_id='{TENANT_ID}' AND type = 'admin'"
     )
-    ROLE_ID = rds_execute_statement(sql_default_role_id)[0]["role_id"]
+    ROLE_ID = SQLBuilder(sql_default_role_id).execute("roles_master", True)[0]["role_id"]
 
     sql = f"""SELECT COUNT(*) as count FROM user_roles WHERE cognito_user_id = '{cognito_user_id}'
       AND role_id = '{ROLE_ID}' AND  tenant_id = '{TENANT_ID}'"""
-    count = rds_execute_statement(sql)[0]["count"]
+    count = SQLBuilder(sql).execute("users_roles")[0]["count"]
     if not count:
         sql_assign_role = (
             f"INSERT INTO user_roles (tenant_id, cognito_user_id, role_id) "
@@ -188,7 +188,7 @@ def assign_role():
             f"'{ROLE_ID}'"
             ")"
         )
-        rds_execute_statement(sql_assign_role)
+        SQLBuilder(sql_assign_role).execute("user_roles", False)
 
 
 def create_app_tenant_user():
@@ -197,7 +197,7 @@ def create_app_tenant_user():
     AND last_name = 'Key'
     AND email = 'Tenant-Key'
     AND tenant_id = '{TENANT_ID}'"""
-    count = rds_execute_statement(sql)[0]["count"]
+    count = SQLBuilder(sql).execute("users_master")[0]["count"]
     if not count:
         sql_insert_user = (
             f"INSERT INTO users_master (cognito_user_id, first_name, last_name, email, tenant_id) "
@@ -209,14 +209,14 @@ def create_app_tenant_user():
             f"'{TENANT_ID}'"
             ")"
         )
-        rds_execute_statement(sql_insert_user)
+        SQLBuilder(sql_insert_user).execute("users_master", False)
 
     # App user
     sql = f"""SELECT COUNT(*) as count FROM users_master WHERE first_name = 'App'
     AND last_name = 'Key'
     AND email = 'App-Key'
     AND tenant_id = '{TENANT_ID}'"""
-    count = rds_execute_statement(sql)[0]["count"]
+    count = SQLBuilder(sql).execute("users_master")[0]["count"]
     if not count:
         sql_insert_user = (
             f"INSERT INTO users_master (cognito_user_id, first_name, last_name, email, tenant_id) "
@@ -228,7 +228,7 @@ def create_app_tenant_user():
             f"'{TENANT_ID}'"
             ")"
         )
-        rds_execute_statement(sql_insert_user)
+        SQLBuilder(sql_insert_user).execute("users_master", False)
 
 
 def bucket_file_exist(path):
