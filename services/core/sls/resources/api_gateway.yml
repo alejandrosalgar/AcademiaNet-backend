@@ -1,0 +1,58 @@
+Resources:
+  # API Gateway Resources
+  ApiGatewayRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: POC API
+      Description: POC API Gateway
+
+  ApiResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId:
+        Ref: ApiGatewayRestApi
+      ParentId:
+        Fn::GetAtt:
+          - ApiGatewayRestApi
+          - RootResourceId
+      PathPart: api
+
+  ApiGatewayAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      AuthorizerResultTtlInSeconds: 300
+      Name: Cognito
+      IdentitySource: method.request.header.Authorization
+      RestApiId:
+        Ref: ApiGatewayRestApi
+      Type: COGNITO_USER_POOLS
+      ProviderARNs:
+        - "Fn::GetAtt": [MasterUserPoolneostella, Arn]
+        - "Fn::GetAtt": [MasterUserPoolAppKeys, Arn]
+
+Outputs:
+  ApiGatewayRestApiId:
+    Value:
+      Ref: ApiGatewayRestApi
+    Export:
+      Name: ${self:service}-${self:provider.stage}-ExtApiGatewayRestApiId
+
+  ApiGatewayRestApiRootResourceId:
+    Value:
+      Fn::GetAtt:
+        - ApiGatewayRestApi
+        - RootResourceId
+    Export:
+      Name: ${self:service}-${self:provider.stage}-ExtApiGatewayRestApiRootResourceId
+
+  ApiGatewayAuthorizer:
+    Value:
+      Ref: ApiGatewayAuthorizer
+    Export:
+      Name: ${self:service}-${self:provider.stage}-ApiGatewayAuthorizer
+      
+  GatewayAuthorizerId:
+    Value:
+      "Fn::GetAtt": [ApiGatewayAuthorizer, AuthorizerId]
+    Export:
+      Name: ${self:service}-${self:provider.stage}-GatewayAuthorizerId

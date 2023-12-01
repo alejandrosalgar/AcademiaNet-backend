@@ -1,0 +1,8 @@
+{
+    "components" : [
+        ["admin","roles","general", "both" ],
+        ["admin","users","general", "both"],
+        ["user_settings","users","general", "both"]
+    ],
+    "objects":[]
+}

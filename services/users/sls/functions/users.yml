@@ -1,0 +1,93 @@
+UsersGet:
+  handler: src/handlers/users_get.lambda_handler
+  environment:
+    RESOURCE_METHOD: UsersGet
+  package: 
+    patterns:
+      - './../src/handlers/users_get.py'
+      - './../src/services/users_get.py'
+      - './../src/dam/users.py'
+      - './../src/utils.py'
+  events:
+    - http:
+        path: users
+        cors: True
+        method: get
+        # documentation: ${file(./documentation/serverless.doc.yml):functions.UsersPost}
+        authorizer:
+          type: COGNITO_USER_POOLS
+          scopes:
+            - aws.cognito.signin.user.admin
+            - apiauthidentifier/json.read
+          authorizerId:
+            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer
+
+UserGet:
+  handler: src/handlers/user_get.lambda_handler
+  environment:
+    RESOURCE_METHOD: UserGet
+  package: 
+    patterns:
+      - './../src/handlers/user_get.py'
+      - './../src/services/user_get.py'
+      - './../src/dam/users.py'
+  events:
+    - http:
+        path: users/{cognito_user_id}
+        cors: True
+        method: get
+        # documentation: ${file(./documentation/serverless.doc.yml):functions.UsersPost}
+        authorizer:
+          type: COGNITO_USER_POOLS
+          scopes:
+            - aws.cognito.signin.user.admin
+            - apiauthidentifier/json.read
+          authorizerId:
+            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer
+
+UserPut:
+  handler: src/handlers/user_put.lambda_handler
+  environment:
+    RESOURCE_METHOD: UserPut
+  package: 
+    patterns:
+      - './../src/handlers/user_put.py'
+      - './../src/services/user_put.py'
+      - './../src/services/user_get.py'
+      - './../src/dam/users.py'
+  events:
+    - http:
+        path: users/{cognito_user_id}
+        cors: True
+        method: put
+        # documentation: ${file(./documentation/serverless.doc.yml):functions.UsersPost}
+        authorizer:
+          type: COGNITO_USER_POOLS
+          scopes:
+            - aws.cognito.signin.user.admin
+            - apiauthidentifier/json.read
+          authorizerId:
+            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer
+
+UserPost:
+  handler: src/handlers/user_post.lambda_handler
+  environment:
+    RESOURCE_METHOD: UserPost
+  package: 
+    patterns:
+      - './../src/handlers/user_post.py'
+      - './../src/services/user_post.py'
+      - './../src/dam/users.py'
+  events:
+    - http:
+        path: users
+        cors: True
+        method: post
+        # documentation: ${file(./documentation/serverless.doc.yml):functions.UsersPost}
+        authorizer:
+          type: COGNITO_USER_POOLS
+          scopes:
+            - aws.cognito.signin.user.admin
+            - apiauthidentifier/json.read
+          authorizerId:
+            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer

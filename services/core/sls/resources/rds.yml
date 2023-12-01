@@ -1,0 +1,30 @@
+Resources:
+  # RDS Resources
+  MasterUserDB:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DatabaseName: ${self:service}${self:provider.stage}MasterUserDB
+      DBClusterIdentifier: ${self:service}-${self:provider.stage}-masterusercluster
+      DeletionProtection: False
+      EnableHttpEndpoint: True
+      Engine: aurora-postgresql
+      EngineMode: serverless
+      MasterUsername: postgres
+      MasterUserPassword: postgres123
+      Port: 5432
+      ScalingConfiguration:
+        MaxCapacity: 16
+        MinCapacity: 8
+        AutoPause: True
+        SecondsUntilAutoPause: 7200
+
+Outputs:
+  DatabaseName:
+    Value: ${self:resources.1.Resources.MasterUserDB.Properties.DatabaseName}
+    Export:
+      Name: ${self:service}-${self:provider.stage}-DatabaseName
+
+  DbClusterARN:
+    Value: arn:aws:rds:${self:provider.region}:${aws:accountId}:cluster:${self:resources.1.Resources.MasterUserDB.Properties.DBClusterIdentifier}
+    Export:
+      Name: ${self:service}-${self:provider.stage}-DbClusterARN

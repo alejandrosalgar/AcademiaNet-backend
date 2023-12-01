@@ -1,0 +1,25 @@
+Resources:
+  CustomLoggerTable: 
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: service
+          AttributeType: S
+      KeySchema:
+        - AttributeName: service
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
+      TableName: ${self:service}-${self:provider.stage}-custom-logger
+Outputs:
+  CustomLoggerTable:
+    Value:
+      Ref: CustomLoggerTable
+    Export:
+      Name: ${self:service}-${self:provider.stage}-CustomLoggerTable
+  CustomLoggerTableArn:
+    Value:
+      Fn::GetAtt: [ CustomLoggerTable, Arn ]
+    Export:
+      Name: ${self:service}-${self:provider.stage}-CustomLoggerTableARN

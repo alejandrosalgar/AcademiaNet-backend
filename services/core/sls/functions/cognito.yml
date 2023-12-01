@@ -1,0 +1,36 @@
+CustomEmail:
+  handler: src/handlers/custom_email.lambda_handler
+  environment:
+    RESOURCE_METHOD: CustomEmail
+    TENANTS_BUCKET: ${self:service}-${self:provider.stage}-tenants
+    CLOUD_FRONT_URL: ${self:custom.common.environment.CLOUD_FRONT_URL}
+    PROJECT: ${self:custom.common.environment.PROJECT}
+    COMPANY: ${self:custom.common.environment.COMPANY}
+    URL_COMPANY: ${self:custom.common.environment.URL_COMPANY}
+    LOGO: ${self:custom.common.environment.LOGO}
+  package: 
+    patterns:
+      - './../src/handlers/custom_email.py'
+  iamRoleStatements:
+    - Effect: "Allow"
+      Resource: arn:aws:rds:${self:provider.region}:${aws:accountId}:cluster:${self:resources.1.Resources.MasterUserDB.Properties.DBClusterIdentifier}
+      Action:
+        - rds-data:ExecuteStatement
+    - Effect: "Allow"
+      Resource:
+        - arn:aws:s3:::${self:service}-${self:provider.stage}-tenants/*
+        - arn:aws:s3:::${self:service}-${self:provider.stage}-tenants
+      Action:
+        - s3:ListBucket
+        - s3:GetObject
+        - s3:HeadObject
+    - Effect: "Allow"
+      Resource:
+        - Ref: DatabaseKeys
+      Action:
+        - secretsmanager:GetSecretValue
+  events:
+    - cognitoUserPool:
+        pool: ${self:service}-${self:provider.stage}-MasterUserPool-neostella
+        trigger: CustomMessage
+        existing: true
