@@ -1,22 +1,37 @@
 import os
 from os import listdir
 from os.path import isfile, join
+import sys
 
-from core_utils.boto3.constants import RESOURCE_METHOD, SERVICE_NAME
-from core_utils.boto3.rds import (
-    begin_transaction,
-    commit_transaction,
-    rds_execute_statement,
-    rollback_transaction,
-)
-from core_utils.constants import CORALOGIX_KEY, UUID
-from core_utils.logging.coralogix import send_to_coralogix
-from core_utils.models.tenants import Tenants
+
+def setup_project_path():
+    # Get the absolute path of the current script's directory
+    current_script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Get the absolute path of the project's root directory
+    project_root_dir = os.path.abspath(os.path.join(current_script_dir, ".."))
+
+    # Add the project's root directory to the sys.path list
+    sys.path.append(project_root_dir)
+
+
+setup_project_path()
+
+import custom_logger
+from core_utils.boto3_utils.constants import REGION_NAME, RESOURCE_METHOD, SERVICE_NAME
+from core_utils.constants import UUID
+from core_utils.core_models.tenants import Tenants
+from custom_logger.logger.utils import LoggingLevels
+
+from utils.logger.custom_logger import initialize_logging
+from utils.sql_handler.sql_execution import sql_context
+
+initialize_logging()
 
 
 def migration_table_exist():
     sql = "SELECT * FROM information_schema.tables WHERE table_name = 'migrations_master';"
-    result = rds_execute_statement(sql)
+    result = sql_context.exec(sql, {})
     if len(result) > 0:
         return True
     else:
@@ -38,7 +53,7 @@ def insert_migration(file_path, file_content, credential):
     file_content = file_content.replace("'", r"\'")
     sql = f"""INSERT INTO migrations_master (file_path, file_content)
      VALUES ('{file_path}', e'{file_content}');"""
-    rds_execute_statement(sql, **credential["rds_params"])
+    sql_context.exec(sql, {}, **credential["rds_params"])
 
 
 def run_sql_migration(file_path, credential):
@@ -49,33 +64,28 @@ def run_sql_migration(file_path, credential):
     sqlCommands = [sqlFile]
     if "transaction_id" in credential["rds_params"]:
         credential["rds_params"].pop("transaction_id", None)
-    transaction_id = begin_transaction(**credential["rds_params"])
+    transaction_id = sql_context.begin_transaction(**credential["rds_params"])
     credential["rds_params"]["transaction_id"] = transaction_id
     credential["transaction_params"]["transaction_id"] = transaction_id
     # Execute every command from the input file
     for command in sqlCommands:
         if command != "":
             try:
-                rds_execute_statement(sql=command, **credential["rds_params"])
+                sql_context.exec(command, {}, **credential["rds_params"])
             except Exception as e:
-                send_to_coralogix(
-                    CORALOGIX_KEY,
+                custom_logger.log(
                     {
-                        "UUID": UUID,
-                        "Status": "Failure",
-                        "Migration file": file_path,
-                        "Error message": str(e),
+                        str(e),
                     },
-                    SERVICE_NAME,
-                    RESOURCE_METHOD,
-                    5,
+                    LoggingLevels.ERROR,
                 )
-                rollback_transaction(**credential["transaction_params"])
+
+                sql_context.rollback_transaction(**credential["transaction_params"])
                 credential["rds_params"]["transaction_id"] = None
                 credential["transaction_params"]["transaction_id"] = None
                 return True
     insert_migration(file_path, sqlFile, credential)
-    commit_transaction(**credential["transaction_params"])
+    sql_context.commit_transaction(**credential["transaction_params"])
     credential["rds_params"]["transaction_id"] = None
     credential["transaction_params"]["transaction_id"] = None
 
@@ -89,12 +99,12 @@ def clean_transaction_var():
 
 def record_migration_exits(file_path, credential):
     try:
-        commit_transaction()
+        sql_context.commit_transaction()
     except Exception:
         pass
     sql = f"""SELECT migration_id, file_path, created_at FROM migrations_master
      WHERE file_path = '{file_path}';"""
-    result = rds_execute_statement(sql=sql, **credential["rds_params"])
+    result = sql_context.exec(sql, {}, **credential["rds_params"])
     if len(result) > 0:
         return True
     else:
@@ -110,7 +120,7 @@ def create_migration_table():
             file_content TEXT DEFAULT NULL,
             created_at timestamp without time zone DEFAULT NOW(),
             PRIMARY KEY (migration_id));"""
-    rds_execute_statement(sql)
+    sql_context.exec(sql, {})
 
 
 def run_migrations(files, credentials):
@@ -129,9 +139,9 @@ def run_migrations(files, credentials):
 def create_migrations_flow():
     print(f"Migration process started, UUID: {UUID}")
     # Run submodules migration (If you add a new submodule please add him to the end of array)
-    # submodules = [f"/src/{f}" for f in listdir("src")]
-    # submodules.remove("/src/neojumpstart_core_backend")
-    # submodules = ["/src/neojumpstart_core_backend"] + submodules + [""]  # Core first, root last
+    #submodules = [f"/src/{f}" for f in listdir("src")]
+    #submodules.remove("/src/neojumpstart_core_backend")
+    #submodules = ["/src/neojumpstart_core_backend"] + submodules + [""]  # Core first, root last
     submodules = [""]
 
     MIGRATION_TABLE_EXIST = migration_table_exist()
