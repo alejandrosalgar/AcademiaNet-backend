@@ -1,0 +1,100 @@
+ProductsGet:
+  handler: src/handlers/products_get.lambda_handler
+  environment:
+    RESOURCE_METHOD: ProductsGet
+  package: 
+    patterns:
+      - './../src/models/products.py'
+      - './../src/handlers/products_get.py'
+      - './../src/services/products_get.py'
+      - './../src/dam/products.py'
+      - './../src/utils.py'
+  events:
+    - http:
+        path: products
+        cors: True
+        method: get
+        # documentation: ${file(./documentation/serverless.doc.yml):functions.UsersPost}
+        authorizer:
+          type: COGNITO_USER_POOLS
+          scopes:
+            - aws.cognito.signin.user.admin
+            - apiauthidentifier/json.read
+          authorizerId:
+            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer
+
+ProductGet:
+  handler: src/handlers/product_get.lambda_handler
+  environment:
+    RESOURCE_METHOD: ProductGet
+  package: 
+    patterns:
+      - './../src/models/products.py'
+      - './../src/handlers/product_get.py'
+      - './../src/services/product_get.py'
+      - './../src/dam/products.py'
+      - './../src/utils.py'
+  events:
+    - http:
+        path: products/{cognito_user_id}
+        cors: True
+        method: get
+        # documentation: ${file(./documentation/serverless.doc.yml):functions.UsersPost}
+        authorizer:
+          type: COGNITO_USER_POOLS
+          scopes:
+            - aws.cognito.signin.user.admin
+            - apiauthidentifier/json.read
+          authorizerId:
+            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer
+
+ProductPut:
+  handler: src/handlers/product_put.lambda_handler
+  environment:
+    RESOURCE_METHOD: ProductPut
+  package: 
+    patterns:
+      - './../src/models/products.py'
+      - './../src/handlers/product_put.py'
+      - './../src/services/product_put.py'
+      - './../src/services/product_get.py'
+      - './../src/dam/products.py'
+      - './../src/utils.py'
+  events:
+    - http:
+        path: products/{cognito_user_id}
+        cors: True
+        method: put
+        # documentation: ${file(./documentation/serverless.doc.yml):functions.UsersPost}
+        authorizer:
+          type: COGNITO_USER_POOLS
+          scopes:
+            - aws.cognito.signin.user.admin
+            - apiauthidentifier/json.read
+          authorizerId:
+            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer
+
+ProductPost:
+  handler: src/handlers/product_post.lambda_handler
+  environment:
+    RESOURCE_METHOD: ProductPost
+  package: 
+    patterns:
+      - './../src/models/products.py'
+      - './../src/handlers/product_post.py'
+      - './../src/services/product_post.py'
+      - './../src/dam/products.py'
+      - './../src/utils.py'
+  events:
+    - http:
+        path: products
+        cors: True
+        method: post
+        # documentation: ${file(./documentation/serverless.doc.yml):functions.UsersPost}
+        authorizer:
+          type: COGNITO_USER_POOLS
+          scopes:
+            - aws.cognito.signin.user.admin
+            - apiauthidentifier/json.read
+          authorizerId:
+            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer

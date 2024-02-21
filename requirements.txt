@@ -1,0 +1,5 @@
+requests==2.26.0
+python-dotenv==0.21.0
+boto3==1.28.73
+pydantic==2.1.1
+pydantic_core==2.4.0

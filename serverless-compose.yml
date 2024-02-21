@@ -6,3 +6,7 @@ services:
   users:
     path: services/users/sls
     dependsOn: core
+
+  products:
+    path: services/products/sls
+    dependsOn: core

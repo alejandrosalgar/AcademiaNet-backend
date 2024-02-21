@@ -2,7 +2,12 @@
     "components" : [
         ["admin","roles","general", "both" ],
         ["admin","users","general", "both"],
-        ["user_settings","users","general", "both"]
+        ["user_settings","users","general", "both"],
+        ["admin", "companies", "general", "both"],
+        ["admin", "products", "general", "both"]
     ],
-    "objects":[]
+    "objects":[
+        ["users_master", 0, "full_name", true, false, null, "admin.users.general"],
+        ["products_master", 0, "product_name", true, false, null, "admin.products.general"]
+    ]
 }
