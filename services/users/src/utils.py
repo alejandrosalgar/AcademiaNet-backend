@@ -10,9 +10,9 @@ import os
 APP_NAME = os.environ["APP_NAME"]
 SERVICE_NAME = os.environ["SERVICE_NAME"]
 CONTROL_CENTER_TABLE = DYNAMO_RESOURCE.Table(os.environ["CUSTOM_LOGGER_TABLE_NAME"])
-CORALOGIX_URL = os.environ["CORALOGIX_URL"]
-CORALOGIX_KEY_SECRET_NAME = os.environ["CORALOGIX_KEY_SECRET_NAME"]
-CORALOGIX_KEY = get_secret(CORALOGIX_KEY_SECRET_NAME, REGION_NAME, "CoralogixKey")
+CORALOGIX_CREDS = get_secret(os.environ["CORALOGIX_SECRET"], REGION_NAME)
+CORALOGIX_KEY = CORALOGIX_CREDS.get("CoralogixKey")
+CORALOGIX_URL = CORALOGIX_CREDS.get("CoralogixUrl")
 
 def initialize_logging():
     custom_logger.setup_default_logger_configuration(

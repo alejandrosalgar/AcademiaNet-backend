@@ -25,8 +25,7 @@ provider:
   environment:
     APP_NAME: ${self:custom.common.service}-${self:custom.common.provider.stage}
     SERVICE_NAME: users
-    CORALOGIX_URL: ${self:custom.common.environment.CORALOGIX_URL}
-    CORALOGIX_KEY_SECRET_NAME: 
+    CORALOGIX_SECRET: 
       Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-CoralogixSecret
     REGION_NAME: ${self:provider.region}
     STAGE: ${self:provider.stage}

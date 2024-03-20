@@ -24,8 +24,8 @@ provider:
 
   environment:
     APP_NAME: ${self:custom.common.service}
-    CORALOGIX_URL: ${self:custom.common.environment.CORALOGIX_URL}
-    CORALOGIX_KEY_SECRET_NAME: ${self:resources.3.Resources.CoralogixKey.Properties.Name}
+    SERVICE: ${self:service}
+    CORALOGIX_SECRET: ${self:resources.3.Resources.CoralogixKey.Properties.Name}
     CUSTOM_LOGGER_TABLE_NAME:
       Ref: CustomLoggerTable
     REGION_NAME: ${self:provider.region}

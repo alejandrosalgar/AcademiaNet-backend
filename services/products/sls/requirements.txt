@@ -1,5 +1,0 @@
-requests==2.26.0
-pydantic==2.1.1
-pydantic_core==2.4.0
-git+https://${CI_TOKEN}@github.com/Neostella/custom-logger-pkg.git@latest
-git+https://${CI_TOKEN}@github.com/Neostella/core-utils-pkg.git@0.1.0

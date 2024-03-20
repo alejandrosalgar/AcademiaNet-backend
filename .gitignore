@@ -144,3 +144,6 @@ nodemon*
 .idea
 
 private.key
+
+**/utils
+Utils.zip
