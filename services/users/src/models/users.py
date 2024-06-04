@@ -2,10 +2,9 @@ import re
 import uuid
 from typing import Any, ClassVar
 
-from pydantic import UUID4, Field, field_validator
-
-from core_utils.sql_handler.sql_operator import CustomBaseModel
 from core_utils.exceptions.model_exceptions import ModelException
+from core_utils.sql_handler.sql_operator import CustomBaseModel
+from pydantic import UUID4, Field, field_validator
 
 
 class InvalidUsernameException(ModelException):

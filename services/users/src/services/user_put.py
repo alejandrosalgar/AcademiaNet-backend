@@ -1,12 +1,13 @@
-
-from src.dam.users import update
-from typing import Any
-from core_utils.core_models.users import Users
-from src.services.user_get import perform as user_get_perform
 import uuid
+from typing import Any
+
+from core_utils.core_models.users import Users
+from src.dam.users import update
+from src.services.user_get import perform as user_get_perform
+
 
 def perform(
-    cognito_user_id:str,
+    cognito_user_id: str,
     user_id: str,
     payload: dict[str, Any],
 ) -> None:
@@ -26,7 +27,6 @@ def perform(
     user: Users = user_get_perform(cognito_user_id=cognito_user_id)
     for key, value in payload.items():
         setattr(user, key, value)
-    setattr(user, 'updated_by', uuid.UUID(user_id))
+    setattr(user, "updated_by", uuid.UUID(user_id))
 
     update(user)
-    

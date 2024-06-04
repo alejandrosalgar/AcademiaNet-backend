@@ -1,23 +1,10 @@
+from dataclasses import dataclass
 from unittest.mock import patch
 
 
-def tenant_setup_mock(fn):
-    def wrapper(*args, **kwargs):
-        response = fn(*args, **kwargs)
-        return response
-
-    return wrapper
-
-
-def lambda_decorator_mock(fn):
-    def wrapper(*args, **kwargs):
-        response = fn(*args, **kwargs)
-        return response
-
-    return wrapper
-
-
-def webhook_dispatch_mock(object_name=None, action=None):
+def lambda_wrapper_mock(
+    before=None, after=None, transactional=True, sql_context=None, event_logging_level=None
+):
     def decorator(fn):
         def wrapper(*args, **kwargs):
             return fn(*args, **kwargs)
@@ -28,11 +15,14 @@ def webhook_dispatch_mock(object_name=None, action=None):
 
 
 mock_decorators = {
-    "tenant_setup": tenant_setup_mock,
-    "lambda_decorator": lambda_decorator_mock,
-    "webhook_dispatch": webhook_dispatch_mock,
+    "lambda_wrapper": lambda_wrapper_mock,
 }
 
 
 def mock_decorator(decorator):
-    patch(f"core_utils.http_utils.api_handler.{decorator}", mock_decorators[decorator]).start()
+    patch(f"core_utils.lambda_utils.{decorator}", mock_decorators[decorator]).start()
+
+
+@dataclass
+class LambdaContext:
+    aws_request_id: str = "845d59af-036f-48fc-8f1a-26630a7af8e1"

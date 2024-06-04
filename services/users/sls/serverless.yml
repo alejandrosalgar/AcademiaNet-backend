@@ -75,11 +75,18 @@ provider:
 
   layers:
     - Ref: PythonRequirementsLambdaLayer
+    - Ref: UtilsLambdaLayer
 
 package: 
   individually: true
   patterns:
     - '!./**'
+
+layers:
+  Utils:
+    name: ${self:service}-${self:provider.stage}-utils
+    package:
+      artifact: ./../../../Utils.zip
 
 functions:
   - ${file(./functions/users.yml)}

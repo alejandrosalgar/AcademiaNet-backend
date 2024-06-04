@@ -18,7 +18,7 @@ def create_local_layer(services_path="", layer_src=""):
         if "." not in service and service not in ignore_folders
     ]
     for service_path in services_paths:
-        layer_path = f"{service_path}/src/{layer_src}"
+        layer_path = f"{service_path}/{layer_src}"
         if os.path.exists(layer_path):
             shutil.rmtree(layer_path)
         shutil.copytree(layer_src, layer_path)

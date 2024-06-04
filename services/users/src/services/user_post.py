@@ -1,6 +1,7 @@
+from typing import Any
 
 from src.dam.users import insert
-from typing import Any
+
 
 def perform(
     user_id: str,
@@ -22,5 +23,5 @@ def perform(
     """
 
     cognito_user_id = insert(user_id, tenant_id, payload)
-    
+
     return cognito_user_id

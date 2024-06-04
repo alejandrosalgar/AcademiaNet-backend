@@ -7,7 +7,6 @@ UsersGet:
       - './../src/handlers/users_get.py'
       - './../src/services/users_get.py'
       - './../src/dam/users.py'
-      - './../src/utils.py'
   events:
     - http:
         path: users

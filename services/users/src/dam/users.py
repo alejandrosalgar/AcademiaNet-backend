@@ -1,16 +1,17 @@
-from core_utils.sql_handler.sql_operator import SQLOperator
-from core_utils.sql_handler.sql_builder import SQLBuilder
-from core_utils.core_models.users import Users
-from pydantic import BaseModel
-from typing import Any
 import uuid
+from typing import Any, List
+
+from core_utils.core_models.users import Users
+from core_utils.sql_handler.sql_builder import SQLBuilder
+from core_utils.sql_handler.sql_operator import SQLOperator
+from pydantic import BaseModel
 
 
-def get_list(params: BaseModel, tenant_id: str = None) -> list[Users]:
+def get_list(params: BaseModel, tenant_id: str = None) -> List:
     dict_params = params.model_dump(exclude_none=True)
     dict_params["tenant_id"] = tenant_id = uuid.UUID(tenant_id)
     dict_params["offset"] = dict_params.get("page") * dict_params.get("per_page")
-    users: list[Users] = (
+    users: List = (
         SQLBuilder()
         .select(Users.table)
         .where(

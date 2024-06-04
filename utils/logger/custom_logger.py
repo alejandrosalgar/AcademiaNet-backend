@@ -14,11 +14,14 @@ def _get_coralogix_secrets(coralogix_secrets: str) -> tuple:
     return coralogix_data.get("CoralogixKey", None), coralogix_data.get("CoralogixUrl", None)
 
 
-APP_NAME = os.environ["APP_NAME"]
-SERVICE_NAME = os.environ["SERVICE"]
-CONTROL_CENTER_TABLE = DYNAMO_RESOURCE.Table(os.environ["CUSTOM_LOGGER_TABLE_NAME"])
+APP_NAME = os.getenv("APP_NAME", "unit_tests")
+SERVICE_NAME = os.getenv("SERVICE", "unit_tests_service")
+CUSTOM_LOGGER_TABLE = os.getenv("CUSTOM_LOGGER_TABLE_NAME", None)
+CONTROL_CENTER_TABLE = DYNAMO_RESOURCE.Table(CUSTOM_LOGGER_TABLE) if CUSTOM_LOGGER_TABLE else None
 CORALOGIX_SECRETS = os.getenv("CORALOGIX_SECRET", None)
-CORALOGIX_KEY, CORALOGIX_URL = _get_coralogix_secrets(CORALOGIX_SECRETS)
+CORALOGIX_KEY, CORALOGIX_URL = (
+    _get_coralogix_secrets(CORALOGIX_SECRETS) if CORALOGIX_SECRETS else (None, None)
+)
 
 
 def initialize_logging():
