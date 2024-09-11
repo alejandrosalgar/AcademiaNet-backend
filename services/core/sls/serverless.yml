@@ -3,7 +3,6 @@ frameworkVersion: ${self:custom.common.frameworkVersion}
 
 plugins:
   - serverless-python-requirements
-  - serverless-aws-documentation
   - serverless-export-env
   - serverless-prune-plugin
   - serverless-deployment-bucket

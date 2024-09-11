@@ -1,22 +1,32 @@
 Resources:
   # RDS Resources
+
   MasterUserDB:
     Type: AWS::RDS::DBCluster
     Properties:
       DatabaseName: ${self:service}${self:provider.stage}MasterUserDB
       DBClusterIdentifier: ${self:service}-${self:provider.stage}-masterusercluster
-      DeletionProtection: False
       EnableHttpEndpoint: True
       Engine: aurora-postgresql
-      EngineMode: serverless
+      EngineVersion: 15.4
+      EngineMode: provisioned
       MasterUsername: postgres
-      MasterUserPassword: postgres123
+      MasterUserPassword: !Sub "{{resolve:secretsmanager:${DatabaseKeys}::password}}"
       Port: 5432
-      ScalingConfiguration:
-        MaxCapacity: 16
-        MinCapacity: 8
-        AutoPause: True
-        SecondsUntilAutoPause: 7200
+      ServerlessV2ScalingConfiguration:
+        MinCapacity: 0.5
+        MaxCapacity: 2
+
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: aurora-postgresql
+      EngineVersion: 15.4
+      DBClusterIdentifier: !Ref MasterUserDB
+      DBInstanceClass: db.serverless
+      PubliclyAccessible: true
+    DependsOn:
+      - MasterUserDB
 
 Outputs:
   DatabaseName:
