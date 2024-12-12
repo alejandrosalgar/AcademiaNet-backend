@@ -3,17 +3,17 @@ import re
 import traceback
 import urllib.parse as parse
 
-from core_utils.boto3_utils.s3 import S3_CLIENT, S3_RESOURCE
 from core_utils.boto3_utils.constants import TENANTS_BUCKET
+from core_utils.boto3_utils.s3 import S3_CLIENT, S3_RESOURCE
 from core_utils.sql_handler.sql_builder import SQLBuilder
 
 TEMPLATE_REGEX = r"{{(.+?)}}"
-URL = os.environ["CLOUD_FRONT_URL"]
-COMPANY = os.environ["COMPANY"]
-URL_COMPANY = os.environ["URL_COMPANY"]
-LOGO = os.environ["LOGO"]
-STAGE = os.environ["STAGE"]
-PROJECT = os.environ["PROJECT"]
+URL = os.getenv("CLOUD_FRONT_URL", "")
+COMPANY = os.getenv("COMPANY", "")
+URL_COMPANY = os.getenv("URL_COMPANY", "")
+LOGO = os.getenv("LOGO", "")
+STAGE = os.getenv("STAGE", "")
+PROJECT = os.getenv("PROJECT", "")
 LOCATION_PATH = os.path.dirname(__file__)
 TENANT_NAME = ""
 CONTACT_EMAIL = ""
@@ -107,7 +107,7 @@ def _parse_auth_url(base_url: str, email: str, password: str) -> str:
 
 
 def add_subdomain_to_url(tenant_data: dict):
-    globals()["URL"] = os.environ["CLOUD_FRONT_URL"]
+    globals()["URL"] = os.getenv("CLOUD_FRONT_URL", "")
     subdomain = ""
     if "subdomain" not in tenant_data:
         subdomain = ""

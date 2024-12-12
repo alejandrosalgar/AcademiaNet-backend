@@ -1,51 +1,69 @@
-import custom_logger
+from http import HTTPStatus
+
 from core_utils.auth_utils.permissions import Permission
 from core_utils.enums import Actions, Components, Modules, Subcomponents
 from core_utils.http_utils.api_handler import select_tenant_database
 from core_utils.http_utils.api_utils import check_api_keys
 from core_utils.http_utils.enums import StatusCodes
 from core_utils.lambda_utils import lambda_wrapper, polymorphic_event
-from core_utils.lambda_utils.models import (
-    LambdaContext,
-    LambdaEvent,
-    LambdaEventResponse,
-    LambdaHandler,
-)
-from core_utils.lambda_utils.models.events import (
-    ApiGatewayEvent,
-    CognitoEvent,
-    DefaultEvent,
-    EventBridgeEvent,
-    LambdaInvokeEvent,
-    S3Event,
-    SNSEvent,
-    SQSEvent,
-    StepFunctionEvent,
-)
-from core_utils.lambda_utils.models.responses import (
-    ApiGawewayEventResponse,
-    CognitoEventResponse,
-    DefaultEventResponse,
-    EventBridgeEventResponse,
-    LambdaInvokeEventResponse,
-    S3EventResponse,
-    SNSEventResponse,
-    SQSEventResponse,
-    StepFunctionEventResponse,
-)
+from core_utils.lambda_utils.models import LambdaContext, LambdaEvent, LambdaHandler
+from core_utils.lambda_utils.models.events import ApiGatewayEvent
+from core_utils.lambda_utils.models.responses import ApiGawewayEventResponse
 from custom_logger.enums import LoggingLevels
+from pydantic import BaseModel, Field
 from src.services.user_get import perform
+
+from utils.documentation.models import ErrorResponse, SuccessResponse
+from utils.documentation.utils import docs
 from utils.logger.custom_logger import initialize_logging
 
 initialize_logging()
 
 
-@polymorphic_event.register
-def sqs_event_handler(event: SQSEvent, _: LambdaContext) -> SQSEventResponse:
-    custom_logger.log({"event_type": " event from SQS"}, LoggingLevels.INFO)
-    return SQSEventResponse([])
+class UserObject(BaseModel):
+    cognito_user_id: str = Field(description="User unique identifier.")
+    first_name: str = Field(description="User first name.")
+    last_name: str = Field(description="User last name.")
+    full_name: str = Field(description="User full name.")
+    email: str = Field(description="User valid email.")
+    time_zone: str | None = Field(description="User time zone.")
+    is_active: bool | None = Field(default=True)
+    tenant_id: str = Field(description="User tenant identifier.")
+    account_id: str | None = Field(description="User account identifier.", default=None)
+    is_account_user: bool | None = Field(default=False)
+    created_by: str = Field(description="Created by user identifier.")
+    created_at: str = Field(description="Creation date timestamp.")
+    updated_by: str = Field(description="Last user update identifier.")
+    updated_at: str = Field(description="Last updated date timestamp.")
 
 
+class PathParams(BaseModel):
+    cognito_user_id: str = Field(description="User unique identifier.")
+
+
+class UserSuccessResponse(SuccessResponse):
+    user: str = Field(description="User object.")
+
+
+@docs.get(
+    path="/users/{cognito_user_id}",
+    summary="Get a User",
+    description="Retrieve a specific user by its ID.",
+    responses={
+        HTTPStatus.OK: {"description": "User retrieved successfully.", "body": UserSuccessResponse},
+        HTTPStatus.NOT_FOUND: {"description": "User not found.", "body": ErrorResponse},
+        HTTPStatus.INTERNAL_SERVER_ERROR: {
+            "description": "Internal Code Error.",
+            "body": ErrorResponse,
+        },
+        HTTPStatus.BAD_REQUEST: {
+            "description": "Error getting requested User.",
+            "body": ErrorResponse,
+        },
+    },
+    request={"path_parameters": PathParams},
+    tags=["Users"],
+)
 @polymorphic_event.register
 def api_gateway_event_handler(event: ApiGatewayEvent, _: LambdaContext) -> ApiGawewayEventResponse:
     _, tenant_id = check_api_keys(event.raw_event, validate_tenant=False)
@@ -72,66 +90,7 @@ def api_gateway_event_handler(event: ApiGatewayEvent, _: LambdaContext) -> ApiGa
     )
 
 
-@polymorphic_event.register
-def lambda_event_handler(event: LambdaInvokeEvent, _: LambdaContext) -> LambdaInvokeEventResponse:
-    custom_logger.log({"event_type": " event from Lambda"}, LoggingLevels.INFO)
-    return LambdaInvokeEventResponse({"message": "Lambda return message"})
-
-
-@polymorphic_event.register
-def cognito_event_handler(event: CognitoEvent, _: LambdaContext) -> CognitoEventResponse:
-    custom_logger.log({"event_type": " event from Cognito"}, LoggingLevels.INFO)
-    return CognitoEventResponse({"message": "Lambda return cognito"})
-
-
-@polymorphic_event.register
-def default_event_handler(event: DefaultEvent, _: LambdaContext) -> DefaultEventResponse:
-    custom_logger.log({"event_type": " event from Default source"}, LoggingLevels.INFO)
-    return DefaultEventResponse({"message": "Lambda return default"})
-
-
-@polymorphic_event.register
-def event_bridge_event_handler(
-    event: EventBridgeEvent, _: LambdaContext
-) -> EventBridgeEventResponse:
-    custom_logger.log({"event_type": " event from EventBridge"}, LoggingLevels.INFO)
-    return EventBridgeEventResponse({"message": "Lambda return EventBridge"})
-
-
-@polymorphic_event.register
-def s3_event_handler(event: S3Event, _: LambdaContext) -> S3EventResponse:
-    custom_logger.log({"event_type": " event from S3"}, LoggingLevels.INFO)
-    return S3EventResponse({"message": "Lambda return S3"})
-
-
-@polymorphic_event.register
-def sns_event_handler(event: SNSEvent, _: LambdaContext) -> SNSEventResponse:
-    custom_logger.log({"event_type": " event from SNS"}, LoggingLevels.INFO)
-    return SNSEventResponse({"message": "Lambda return SNS"})
-
-
-@polymorphic_event.register
-def step_function_event_handler(
-    event: StepFunctionEvent, _: LambdaContext
-) -> StepFunctionEventResponse:
-    custom_logger.log({"event_type": " event from StepFunction"}, LoggingLevels.INFO)
-    return StepFunctionEventResponse({"message": "Lambda return StepFunction"})
-
-
-def before(event: LambdaEvent, context: LambdaContext):
-    print("Before lambda logic")
-
-
-def after(
-    event: LambdaEvent, context: LambdaContext, response: LambdaEventResponse
-) -> LambdaEventResponse:
-    print("After lambda logic")
-    return response
-
-
-@lambda_wrapper(
-    before=before, after=after, transactional=True, event_logging_level=LoggingLevels.INFO
-)
+@lambda_wrapper(transactional=False, event_logging_level=LoggingLevels.INFO)
 def lambda_handler(event: LambdaEvent, context: LambdaContext):
     lambda_handler_creator = LambdaHandler(event, context)
     response = lambda_handler_creator.perform(polymorphic_event)

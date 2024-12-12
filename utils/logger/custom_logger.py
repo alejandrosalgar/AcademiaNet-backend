@@ -24,10 +24,24 @@ CORALOGIX_KEY, CORALOGIX_URL = (
 )
 
 
+class LocalControlCenter:
+    def get_item(self, *args, **kwargs):
+        return {"Item": None}
+
+
 def initialize_logging():
     custom_logger.setup_default_logger_configuration(
-        ControlCenterRepository(CONTROL_CENTER_TABLE, SERVICE_NAME),
-        CoralogixRepository(APP_NAME, CORALOGIX_URL, CORALOGIX_KEY, RESOURCE_METHOD),
+        (
+            ControlCenterRepository(CONTROL_CENTER_TABLE, SERVICE_NAME)
+            if CUSTOM_LOGGER_TABLE
+            else ControlCenterRepository(LocalControlCenter())
+        ),
+        (
+            CoralogixRepository(APP_NAME, CORALOGIX_URL, CORALOGIX_KEY, RESOURCE_METHOD)
+            if CORALOGIX_KEY
+            else None
+        ),
         RESOURCE_METHOD,
     )
     custom_logger.set_message_context({"correlation_id": get_globals()["UUID"]})
+    custom_logger.register_white_list_fields(["traceback", "error", "message"])
