@@ -1,4 +1,6 @@
-from typing import Callable, Dict, List
+from typing import Callable
+
+from utils.documentation.models import Docs
 
 
 def docs(method: str):
@@ -6,27 +8,26 @@ def docs(method: str):
     Decorator to annotate Lambda handler functions with OpenAPI metadata.
     """
 
-    def decorator(
-        path: str,
-        summary: str,
-        description: str,
-        responses: Dict,
-        request: Dict = None,
-        tags: List[str] = None,
-        auth: bool = True,
-        headers: Dict = None,
-    ):
+    def decorator(docs: Docs):
         def wrapper(func: Callable):
             func._docs_metadata = {
                 "method": method,
-                "path": path,
-                "summary": summary,
-                "description": description,
-                "responses": responses,
-                "request": request or {},
-                "tags": tags or [],
-                "auth": auth,
-                "headers": headers or {},
+                "path": docs.path,
+                "summary": docs.summary,
+                "description": docs.summary,
+                "responses": {
+                    res.status_code: {"description": res.description, "body": res.body}
+                    for res in docs.data_contract.responses
+                },
+                "request": {
+                    "body": docs.data_contract.request.body,
+                    "query_params": docs.data_contract.request.query_params,
+                    "path_params": docs.data_contract.request.path_params,
+                }
+                or {},
+                "tags": docs.tags or [],
+                "headers": {},
+                "security": docs.security,
             }
             return func
 

@@ -2,6 +2,8 @@ from typing import Dict, List, Set
 
 from openapi_pydantic.util import PydanticSchema
 from openapi_pydantic.v3 import (
+    OAuthFlow,
+    OAuthFlows,
     Operation,
     Parameter,
     PathItem,
@@ -9,6 +11,8 @@ from openapi_pydantic.v3 import (
     RequestBody,
     Response,
     Responses,
+    SecurityRequirement,
+    SecurityScheme,
 )
 from pydantic import BaseModel
 
@@ -21,6 +25,7 @@ class DocsRegistry:
     def __init__(self):
         self.paths: Dict[str, Dict[str, Dict, List]] = {}
         self.tags: Set = set()
+        self.security_components: Dict[str, SecurityScheme] = {}
 
     def add_entry(self, metadata: Dict):
         """Add documentation metadata to the registry."""
@@ -28,8 +33,42 @@ class DocsRegistry:
         method = metadata.pop("method")
         if path not in self.paths:
             self.paths[path] = {}
+        security = self.update_security_components(metadata.get("security"))
+        metadata["security"] = security
         self.paths[path][method] = metadata
         self.tags.update(metadata.get("tags", []))
+
+    @staticmethod
+    def __build_security_scheme(scheme: Dict):
+        """Build a Pydantic SecurityScheme from a dictionary."""
+        if flows := scheme.get("flows"):
+            args = {}
+            if client_credentials := flows.get("clientCredentials"):
+                args["clientCredentials"] = OAuthFlow(**client_credentials)
+            elif authorization_code := flows.get("authorizationCode"):
+                args["authorizationCode"] = OAuthFlow(**authorization_code)
+            scheme["flows"] = OAuthFlows(**args)
+
+        return SecurityScheme(**scheme)
+
+    def update_security_components(self, security: List[List[str]]) -> List[SecurityRequirement]:
+        """Update security components and return metadata security."""
+        if not security:
+            return []
+
+        metadata_security = []
+        metadata_security_item: SecurityRequirement = {}
+
+        for security_config in security:
+            metadata_security_item = {}
+            for security_scheme in security_config:
+                scheme = security_scheme.get_component()
+                scheme_id = scheme.pop("id")
+                self.security_components[scheme_id] = DocsRegistry.__build_security_scheme(scheme)
+                metadata_security_item[scheme_id] = security_scheme.scopes
+            metadata_security.append(metadata_security_item)
+
+        return metadata_security
 
     @staticmethod
     def __get_request_body_metadata(request: Dict[str, BaseModel], key: str) -> RequestBody:
@@ -41,10 +80,9 @@ class DocsRegistry:
 
     @staticmethod
     def __get_request_params_metadata(request: Dict[str, BaseModel]) -> List[Parameter]:
-        if not request.get("path_parameters"):
+        if not request.get("path_params"):
             return []
-        print(PydanticSchema(schema_class=request.get("path_parameters")).schema_class.model_fields)
-        json_schema: Dict[str, Dict] = request.get("path_parameters").model_json_schema()
+        json_schema: Dict[str, Dict] = request.get("path_params").model_json_schema()
         return [
             Parameter(
                 name=name,
@@ -54,7 +92,7 @@ class DocsRegistry:
                 param_schema=json_schema.get("properties", {}).get(name, {}),
             )
             for name, config in PydanticSchema(
-                schema_class=request.get("path_parameters")
+                schema_class=request.get("path_params")
             ).schema_class.model_fields.items()
         ]
 
@@ -91,6 +129,7 @@ class DocsRegistry:
                     "responses": DocsRegistry.__get_responses(metadata.get("responses", {})),
                     "tags": metadata.get("tags", []),
                     "summary": metadata.get("summary", "default"),
+                    "security": metadata.get("security", []),
                 }
                 for method, metadata in methods.items()
             ]
