@@ -1,0 +1,857 @@
+var temp = {
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API Documentation",
+    "description": "Development Server",
+    "termsOfService": "http://example.com/terms/",
+    "contact": {
+      "name": "API Documentation",
+      "email": "api-documentation@example.com"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://htxoulxfxc.execute-api.us-east-2.amazonaws.com/dev"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get list of users",
+        "description": "Get list of users",
+        "responses": {
+          "200": {
+            "description": "Get users successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error during users get process.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Code Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": [
+              "aws.cognito.signin.user.admin"
+            ]
+          },
+          {
+            "appKey": [],
+            "oauth2": [
+              "apiauthidentifier/json.read"
+            ],
+            "tenant_id": []
+          },
+          {
+            "tenantKey": [],
+            "oauth2": [
+              "apiauthidentifier/json.read"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create a User",
+        "description": "Create a User",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreationBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCreationSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error during user creation process.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Code Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": [
+              "aws.cognito.signin.user.admin"
+            ]
+          },
+          {
+            "appKey": [],
+            "oauth2": [
+              "apiauthidentifier/json.read"
+            ],
+            "tenant_id": []
+          },
+          {
+            "tenantKey": [],
+            "oauth2": [
+              "apiauthidentifier/json.read"
+            ]
+          }
+        ]
+      }
+    },
+    "/users/{cognito_user_id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get a User",
+        "description": "Get a User",
+        "parameters": [
+          {
+            "description": "User unique identifier.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Cognito User Id",
+              "description": "User unique identifier."
+            },
+            "name": "cognito_user_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUsersSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error during user retrieval process.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Code Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": [
+              "aws.cognito.signin.user.admin"
+            ]
+          },
+          {
+            "appKey": [],
+            "oauth2": [
+              "apiauthidentifier/json.read"
+            ],
+            "tenant_id": []
+          },
+          {
+            "tenantKey": [],
+            "oauth2": [
+              "apiauthidentifier/json.read"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update a User",
+        "description": "Update a User",
+        "parameters": [
+          {
+            "description": "User unique identifier.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Cognito User Id",
+              "description": "User unique identifier."
+            },
+            "name": "cognito_user_id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdateBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPutSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error during user creation process.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Code Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": [
+              "aws.cognito.signin.user.admin"
+            ]
+          },
+          {
+            "appKey": [],
+            "oauth2": [
+              "apiauthidentifier/json.read"
+            ],
+            "tenant_id": []
+          },
+          {
+            "tenantKey": [],
+            "oauth2": [
+              "apiauthidentifier/json.read"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Code error, format: {Service}.{CodeError}"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Message error."
+          },
+          "correlation_id": {
+            "type": "string",
+            "title": "Correlation Id",
+            "description": "Process UUID."
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "correlation_id"
+        ],
+        "title": "ErrorResponse"
+      },
+      "GetUserSuccessResponse": {
+        "properties": {
+          "result": {
+            "type": "string",
+            "title": "Result",
+            "description": "Response description."
+          },
+          "correlation_id": {
+            "type": "string",
+            "title": "Correlation Id",
+            "description": "Process UUID."
+          },
+          "users": {
+            "items": {
+              "$ref": "#/components/schemas/UserObject"
+            },
+            "type": "array",
+            "title": "Users",
+            "description": "Result users list."
+          }
+        },
+        "type": "object",
+        "required": [
+          "result",
+          "correlation_id",
+          "users"
+        ],
+        "title": "GetUserSuccessResponse"
+      },
+      "GetUsersSuccessResponse": {
+        "properties": {
+          "result": {
+            "type": "string",
+            "title": "Result",
+            "description": "Response description."
+          },
+          "correlation_id": {
+            "type": "string",
+            "title": "Correlation Id",
+            "description": "Process UUID."
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserGetObject",
+            "description": "User object."
+          }
+        },
+        "type": "object",
+        "required": [
+          "result",
+          "correlation_id",
+          "user"
+        ],
+        "title": "GetUsersSuccessResponse"
+      },
+      "UserCreationBody": {
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "title": "First Name",
+            "description": "User first name."
+          },
+          "last_name": {
+            "type": "string",
+            "title": "Last Name",
+            "description": "User last name."
+          },
+          "email": {
+            "type": "string",
+            "title": "Email",
+            "description": "User valid email."
+          },
+          "time_zone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Zone",
+            "description": "User time zone."
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active",
+            "default": true
+          },
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id",
+            "description": "User tenant identifier."
+          },
+          "account_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id",
+            "description": "User account identifier."
+          },
+          "is_account_user": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Account User",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "first_name",
+          "last_name",
+          "email",
+          "time_zone",
+          "tenant_id"
+        ],
+        "title": "UserCreationBody"
+      },
+      "UserCreationSuccessResponse": {
+        "properties": {
+          "result": {
+            "type": "string",
+            "title": "Result",
+            "description": "Response description."
+          },
+          "correlation_id": {
+            "type": "string",
+            "title": "Correlation Id",
+            "description": "Process UUID."
+          },
+          "cognito_user_id": {
+            "type": "string",
+            "title": "Cognito User Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "result",
+          "correlation_id",
+          "cognito_user_id"
+        ],
+        "title": "UserCreationSuccessResponse"
+      },
+      "UserGetObject": {
+        "properties": {
+          "cognito_user_id": {
+            "type": "string",
+            "title": "Cognito User Id",
+            "description": "User unique identifier."
+          },
+          "first_name": {
+            "type": "string",
+            "title": "First Name",
+            "description": "User first name."
+          },
+          "last_name": {
+            "type": "string",
+            "title": "Last Name",
+            "description": "User last name."
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name",
+            "description": "User full name."
+          },
+          "email": {
+            "type": "string",
+            "title": "Email",
+            "description": "User valid email."
+          },
+          "time_zone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Zone",
+            "description": "User time zone.",
+            "examples": [
+              "UTC",
+              "Bogota/America"
+            ]
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active",
+            "default": true
+          },
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id",
+            "description": "User tenant identifier."
+          },
+          "account_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id",
+            "description": "User account identifier."
+          },
+          "is_account_user": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Account User",
+            "default": false
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By",
+            "description": "Created by user identifier."
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "description": "Creation date timestamp."
+          },
+          "updated_by": {
+            "type": "string",
+            "title": "Updated By",
+            "description": "Last user update identifier."
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At",
+            "description": "Last updated date timestamp."
+          }
+        },
+        "type": "object",
+        "required": [
+          "cognito_user_id",
+          "first_name",
+          "last_name",
+          "full_name",
+          "email",
+          "time_zone",
+          "tenant_id",
+          "created_by",
+          "created_at",
+          "updated_by",
+          "updated_at"
+        ],
+        "title": "UserGetObject"
+      },
+      "UserObject": {
+        "properties": {
+          "cognito_user_id": {
+            "type": "string",
+            "title": "Cognito User Id",
+            "description": "User unique identifier."
+          },
+          "first_name": {
+            "type": "string",
+            "title": "First Name",
+            "description": "User first name."
+          },
+          "last_name": {
+            "type": "string",
+            "title": "Last Name",
+            "description": "User last name."
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name",
+            "description": "User full name."
+          },
+          "email": {
+            "type": "string",
+            "title": "Email",
+            "description": "User valid email."
+          },
+          "time_zone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Zone",
+            "description": "User time zone."
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active",
+            "default": true
+          },
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id",
+            "description": "User tenant identifier."
+          },
+          "account_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id",
+            "description": "User account identifier."
+          },
+          "is_account_user": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Account User",
+            "default": false
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By",
+            "description": "Created by user identifier."
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "description": "Creation date timestamp."
+          },
+          "updated_by": {
+            "type": "string",
+            "title": "Updated By",
+            "description": "Last user update identifier."
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At",
+            "description": "Last updated date timestamp."
+          }
+        },
+        "type": "object",
+        "required": [
+          "cognito_user_id",
+          "first_name",
+          "last_name",
+          "full_name",
+          "email",
+          "time_zone",
+          "tenant_id",
+          "created_by",
+          "created_at",
+          "updated_by",
+          "updated_at"
+        ],
+        "title": "UserObject"
+      },
+      "UserPutSuccessResponse": {
+        "properties": {
+          "result": {
+            "type": "string",
+            "title": "Result",
+            "description": "Response description."
+          },
+          "correlation_id": {
+            "type": "string",
+            "title": "Correlation Id",
+            "description": "Process UUID."
+          },
+          "cognito_user_id": {
+            "type": "string",
+            "title": "Cognito User Id",
+            "description": "User unique identifier."
+          }
+        },
+        "type": "object",
+        "required": [
+          "result",
+          "correlation_id",
+          "cognito_user_id"
+        ],
+        "title": "UserPutSuccessResponse"
+      },
+      "UserUpdateBody": {
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "title": "First Name",
+            "description": "User first name."
+          },
+          "last_name": {
+            "type": "string",
+            "title": "Last Name",
+            "description": "User last name."
+          },
+          "time_zone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Zone",
+            "description": "User time zone."
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "first_name",
+          "last_name",
+          "time_zone"
+        ],
+        "title": "UserUpdateBody"
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "appKey": {
+        "type": "apiKey",
+        "name": "App-Key",
+        "in": "header"
+      },
+      "oauth2": {
+        "type": "oauth2",
+        "scheme": "basic",
+        "flows": {
+          "clientCredentials": {
+            "authorizationUrl": "http://example.com/auth/authorize",
+            "tokenUrl": "https://pocbackendcoredevappkeys.auth.us-east-2.amazoncognito.com/oauth2/token",
+            "refreshUrl": "http://example.com/auth/refresh",
+            "scopes": {
+              "apiauthidentifier/json.read": ""
+            }
+          }
+        }
+      },
+      "tenant_id": {
+        "type": "apiKey",
+        "name": "tenant_id",
+        "in": "header"
+      },
+      "tenantKey": {
+        "type": "apiKey",
+        "name": "Tenant-Key",
+        "in": "header"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Users"
+    }
+  ]
+}

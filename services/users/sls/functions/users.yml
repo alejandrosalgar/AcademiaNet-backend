@@ -4,15 +4,21 @@ UsersGet:
     RESOURCE_METHOD: UsersGet
   package: 
     patterns:
+      - './../src/handlers/data_contracts/users_get.py'
       - './../src/handlers/users_get.py'
       - './../src/services/users_get.py'
       - './../src/dam/users.py'
   events:
     - http:
         path: users
-        cors: True
         method: get
         # documentation: ${file(./documentation/serverless.doc.yml):functions.UsersPost}
+        cors:
+          origins:
+            - '*'
+          headers:	
+            - '*'
+          allowCredentials: true
         authorizer:
           type: COGNITO_USER_POOLS
           scopes:
@@ -27,15 +33,21 @@ UserGet:
     RESOURCE_METHOD: UserGet
   package: 
     patterns:
+      - './../src/handlers/data_contracts/user_get.py'
       - './../src/handlers/user_get.py'
       - './../src/services/user_get.py'
       - './../src/dam/users.py'
   events:
     - http:
         path: users/{cognito_user_id}
-        cors: True
         method: get
         # documentation: ${file(./documentation/serverless.doc.yml):functions.UsersPost}
+        cors:
+          origins:
+            - '*'
+          headers:	
+            - '*'
+          allowCredentials: true
         authorizer:
           type: COGNITO_USER_POOLS
           scopes:
@@ -50,6 +62,7 @@ UserPut:
     RESOURCE_METHOD: UserPut
   package: 
     patterns:
+      - './../src/handlers/data_contracts/user_put.py'
       - './../src/handlers/user_put.py'
       - './../src/services/user_put.py'
       - './../src/services/user_get.py'
@@ -57,9 +70,14 @@ UserPut:
   events:
     - http:
         path: users/{cognito_user_id}
-        cors: True
         method: put
         # documentation: ${file(./documentation/serverless.doc.yml):functions.UsersPost}
+        cors:
+          origins:
+            - '*'
+          headers:	
+            - '*'
+          allowCredentials: true
         authorizer:
           type: COGNITO_USER_POOLS
           scopes:
@@ -74,15 +92,21 @@ UserPost:
     RESOURCE_METHOD: UserPost
   package: 
     patterns:
+      - './../src/handlers/data_contracts/user_post.py'
       - './../src/handlers/user_post.py'
       - './../src/services/user_post.py'
       - './../src/dam/users.py'
   events:
     - http:
         path: users
-        cors: True
         method: post
         # documentation: ${file(./documentation/serverless.doc.yml):functions.UsersPost}
+        cors:
+          origins:
+            - '*'
+          headers:	
+            - '*'
+          allowCredentials: true
         authorizer:
           type: COGNITO_USER_POOLS
           scopes:
