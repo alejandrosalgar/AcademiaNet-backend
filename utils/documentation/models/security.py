@@ -91,7 +91,8 @@ class ApiSecurityScheme(BaseModel):
                             ),
                             "tokenUrl": os.getenv(
                                 "OAUTH_2_TOKEN_URL",
-                                "https://pocbackendcoredevappkeys.auth.us-east-2.amazoncognito.com/oauth2/token",
+                                "https://pocbackendcoredevappkeys.auth.us-east-2.amazoncognito.com"
+                                "/oauth2/token",
                             ),
                             "refreshUrl": os.getenv(
                                 "OAUTH_2_REFRESH_URL", "http://example.com/auth/refresh"
