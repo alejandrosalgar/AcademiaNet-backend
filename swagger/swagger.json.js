@@ -1,5 +1,5 @@
 var temp = {
-  "openapi": "3.0.1",
+  "openapi": "3.1.0",
   "info": {
     "title": "API Documentation",
     "description": "Development Server",
@@ -20,263 +20,20 @@ var temp = {
     }
   ],
   "paths": {
-    "/users": {
+    "/queues": {
       "get": {
         "tags": [
-          "Users"
+          "Queues"
         ],
-        "summary": "Get list of users",
-        "description": "Get list of users",
+        "summary": "Get Queues",
+        "description": "Get Queues",
         "responses": {
           "200": {
-            "description": "Get users successfully.",
+            "description": "Queues retrieved successfully.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserSuccessResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Error during users get process.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Code Error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": [
-              "aws.cognito.signin.user.admin"
-            ]
-          },
-          {
-            "appKey": [],
-            "oauth2": [
-              "apiauthidentifier/json.read"
-            ],
-            "tenant_id": []
-          },
-          {
-            "tenantKey": [],
-            "oauth2": [
-              "apiauthidentifier/json.read"
-            ]
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Create a User",
-        "description": "Create a User",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserCreationBody"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "User created successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserCreationSuccessResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Error during user creation process.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Code Error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": [
-              "aws.cognito.signin.user.admin"
-            ]
-          },
-          {
-            "appKey": [],
-            "oauth2": [
-              "apiauthidentifier/json.read"
-            ],
-            "tenant_id": []
-          },
-          {
-            "tenantKey": [],
-            "oauth2": [
-              "apiauthidentifier/json.read"
-            ]
-          }
-        ]
-      }
-    },
-    "/users/{cognito_user_id}": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Get a User",
-        "description": "Get a User",
-        "parameters": [
-          {
-            "description": "User unique identifier.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Cognito User Id",
-              "description": "User unique identifier."
-            },
-            "name": "cognito_user_id",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User retrieved successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetUsersSuccessResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Error during user retrieval process.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Code Error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": [
-              "aws.cognito.signin.user.admin"
-            ]
-          },
-          {
-            "appKey": [],
-            "oauth2": [
-              "apiauthidentifier/json.read"
-            ],
-            "tenant_id": []
-          },
-          {
-            "tenantKey": [],
-            "oauth2": [
-              "apiauthidentifier/json.read"
-            ]
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Update a User",
-        "description": "Update a User",
-        "parameters": [
-          {
-            "description": "User unique identifier.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Cognito User Id",
-              "description": "User unique identifier."
-            },
-            "name": "cognito_user_id",
-            "in": "path"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserUpdateBody"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "User updated successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserPutSuccessResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Error during user creation process.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/GetQueuesSuccessResponse"
                 }
               }
             }
@@ -317,6 +74,26 @@ var temp = {
   },
   "components": {
     "schemas": {
+      "DueDateRelative": {
+        "properties": {
+          "value": {
+            "type": "integer",
+            "title": "Value",
+            "description": "Numeric value for the relative due date"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit",
+            "description": "Time unit for the due date, e.g., 'days'"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "unit"
+        ],
+        "title": "DueDateRelative"
+      },
       "ErrorResponse": {
         "properties": {
           "code": {
@@ -343,7 +120,7 @@ var temp = {
         ],
         "title": "ErrorResponse"
       },
-      "GetUserSuccessResponse": {
+      "GetQueuesSuccessResponse": {
         "properties": {
           "result": {
             "type": "string",
@@ -355,332 +132,78 @@ var temp = {
             "title": "Correlation Id",
             "description": "Process UUID."
           },
-          "users": {
+          "atm_queues": {
             "items": {
-              "$ref": "#/components/schemas/UserObject"
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/QueueObject"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "type": "array",
-            "title": "Users",
-            "description": "Result users list."
+            "title": "Atm Queues",
+            "description": "Queues List"
           }
         },
         "type": "object",
         "required": [
           "result",
           "correlation_id",
-          "users"
+          "atm_queues"
         ],
-        "title": "GetUserSuccessResponse"
+        "title": "GetQueuesSuccessResponse"
       },
-      "GetUsersSuccessResponse": {
+      "Label": {
         "properties": {
-          "result": {
+          "atm_label_id": {
             "type": "string",
-            "title": "Result",
-            "description": "Response description."
+            "title": "Atm Label Id",
+            "description": "Unique identifier for the label"
           },
-          "correlation_id": {
+          "name": {
             "type": "string",
-            "title": "Correlation Id",
-            "description": "Process UUID."
-          },
-          "user": {
-            "$ref": "#/components/schemas/UserGetObject",
-            "description": "User object."
+            "title": "Name",
+            "description": "Label name"
           }
         },
         "type": "object",
         "required": [
-          "result",
-          "correlation_id",
-          "user"
+          "atm_label_id",
+          "name"
         ],
-        "title": "GetUsersSuccessResponse"
+        "title": "Label"
       },
-      "UserCreationBody": {
+      "QueueObject": {
         "properties": {
-          "first_name": {
+          "atm_queue_id": {
             "type": "string",
-            "title": "First Name",
-            "description": "User first name."
-          },
-          "last_name": {
-            "type": "string",
-            "title": "Last Name",
-            "description": "User last name."
-          },
-          "email": {
-            "type": "string",
-            "title": "Email",
-            "description": "User valid email."
-          },
-          "time_zone": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Time Zone",
-            "description": "User time zone."
-          },
-          "is_active": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Active",
-            "default": true
-          },
-          "tenant_id": {
-            "type": "string",
-            "title": "Tenant Id",
-            "description": "User tenant identifier."
-          },
-          "account_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Account Id",
-            "description": "User account identifier."
-          },
-          "is_account_user": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Account User",
-            "default": false
-          }
-        },
-        "type": "object",
-        "required": [
-          "first_name",
-          "last_name",
-          "email",
-          "time_zone",
-          "tenant_id"
-        ],
-        "title": "UserCreationBody"
-      },
-      "UserCreationSuccessResponse": {
-        "properties": {
-          "result": {
-            "type": "string",
-            "title": "Result",
-            "description": "Response description."
-          },
-          "correlation_id": {
-            "type": "string",
-            "title": "Correlation Id",
-            "description": "Process UUID."
-          },
-          "cognito_user_id": {
-            "type": "string",
-            "title": "Cognito User Id"
-          }
-        },
-        "type": "object",
-        "required": [
-          "result",
-          "correlation_id",
-          "cognito_user_id"
-        ],
-        "title": "UserCreationSuccessResponse"
-      },
-      "UserGetObject": {
-        "properties": {
-          "cognito_user_id": {
-            "type": "string",
-            "title": "Cognito User Id",
-            "description": "User unique identifier."
-          },
-          "first_name": {
-            "type": "string",
-            "title": "First Name",
-            "description": "User first name."
-          },
-          "last_name": {
-            "type": "string",
-            "title": "Last Name",
-            "description": "User last name."
-          },
-          "full_name": {
-            "type": "string",
-            "title": "Full Name",
-            "description": "User full name."
-          },
-          "email": {
-            "type": "string",
-            "title": "Email",
-            "description": "User valid email."
-          },
-          "time_zone": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Time Zone",
-            "description": "User time zone.",
-            "examples": [
-              "UTC",
-              "Bogota/America"
-            ]
-          },
-          "is_active": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Active",
-            "default": true
-          },
-          "tenant_id": {
-            "type": "string",
-            "title": "Tenant Id",
-            "description": "User tenant identifier."
-          },
-          "account_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Account Id",
-            "description": "User account identifier."
-          },
-          "is_account_user": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Account User",
-            "default": false
-          },
-          "created_by": {
-            "type": "string",
-            "title": "Created By",
-            "description": "Created by user identifier."
+            "title": "Atm Queue Id",
+            "description": "Unique queue identifier"
           },
           "created_at": {
             "type": "string",
             "title": "Created At",
-            "description": "Creation date timestamp."
-          },
-          "updated_by": {
-            "type": "string",
-            "title": "Updated By",
-            "description": "Last user update identifier."
-          },
-          "updated_at": {
-            "type": "string",
-            "title": "Updated At",
-            "description": "Last updated date timestamp."
-          }
-        },
-        "type": "object",
-        "required": [
-          "cognito_user_id",
-          "first_name",
-          "last_name",
-          "full_name",
-          "email",
-          "time_zone",
-          "tenant_id",
-          "created_by",
-          "created_at",
-          "updated_by",
-          "updated_at"
-        ],
-        "title": "UserGetObject"
-      },
-      "UserObject": {
-        "properties": {
-          "cognito_user_id": {
-            "type": "string",
-            "title": "Cognito User Id",
-            "description": "User unique identifier."
-          },
-          "first_name": {
-            "type": "string",
-            "title": "First Name",
-            "description": "User first name."
-          },
-          "last_name": {
-            "type": "string",
-            "title": "Last Name",
-            "description": "User last name."
-          },
-          "full_name": {
-            "type": "string",
-            "title": "Full Name",
-            "description": "User full name."
-          },
-          "email": {
-            "type": "string",
-            "title": "Email",
-            "description": "User valid email."
-          },
-          "time_zone": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Time Zone",
-            "description": "User time zone."
+            "description": "Creation timestamp"
           },
           "is_active": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "boolean",
             "title": "Is Active",
-            "default": true
+            "description": "Indicates if the queue is active"
           },
-          "tenant_id": {
+          "is_live": {
+            "type": "boolean",
+            "title": "Is Live",
+            "description": "Indicates if the queue is live"
+          },
+          "queue_name": {
             "type": "string",
-            "title": "Tenant Id",
-            "description": "User tenant identifier."
+            "title": "Queue Name",
+            "description": "Queue name"
           },
-          "account_id": {
+          "description": {
             "anyOf": [
               {
                 "type": "string"
@@ -689,97 +212,165 @@ var temp = {
                 "type": "null"
               }
             ],
-            "title": "Account Id",
-            "description": "User account identifier."
+            "title": "Description",
+            "description": "Queue description",
+            "default": ""
           },
-          "is_account_user": {
+          "task_summary": {
+            "type": "string",
+            "title": "Task Summary",
+            "description": "Task summary"
+          },
+          "task_instruction": {
+            "type": "string",
+            "title": "Task Instruction",
+            "description": "Task instructions"
+          },
+          "manual_assignment": {
+            "type": "boolean",
+            "title": "Manual Assignment",
+            "description": "Indicates if assignment is manual"
+          },
+          "advanced_priority": {
+            "type": "boolean",
+            "title": "Advanced Priority",
+            "description": "Indicates if advanced priority is enabled"
+          },
+          "priority": {
+            "type": "number",
+            "title": "Priority",
+            "description": "Priority value"
+          },
+          "task_type": {
+            "type": "string",
+            "title": "Task Type",
+            "description": "Task type identifier"
+          },
+          "task_name": {
+            "type": "string",
+            "title": "Task Name",
+            "description": "Task name"
+          },
+          "max_snooze_time": {
+            "type": "number",
+            "title": "Max Snooze Time",
+            "description": "Maximum snooze time"
+          },
+          "due_date_relative": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DueDateRelative"
+              }
+            ],
+            "description": "Relative due date information"
+          },
+          "escalation_queue": {
+            "type": "boolean",
+            "title": "Escalation Queue",
+            "description": "Indicates if the queue is an escalation queue"
+          },
+          "assignee_level": {
+            "type": "string",
+            "title": "Assignee Level",
+            "description": "Assignee level identifier"
+          },
+          "trigger_type": {
+            "type": "string",
+            "title": "Trigger Type",
+            "description": "Trigger type identifier"
+          },
+          "trigger_name": {
+            "type": "string",
+            "title": "Trigger Name",
+            "description": "Trigger name"
+          },
+          "labels": {
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            },
+            "type": "array",
+            "title": "Labels",
+            "description": "List of associated labels"
+          },
+          "process": {
             "anyOf": [
               {
-                "type": "boolean"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Is Account User",
-            "default": false
+            "title": "Process",
+            "description": "Associated process (can be null)"
           },
-          "created_by": {
+          "flow_id": {
             "type": "string",
-            "title": "Created By",
-            "description": "Created by user identifier."
+            "title": "Flow Id",
+            "description": "Flow identifier"
           },
-          "created_at": {
+          "filevine_project_type_id": {
             "type": "string",
-            "title": "Created At",
-            "description": "Creation date timestamp."
+            "title": "Filevine Project Type Id",
+            "description": "Filevine project type identifier"
           },
-          "updated_by": {
-            "type": "string",
-            "title": "Updated By",
-            "description": "Last user update identifier."
+          "triggered_by": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TriggeredBy"
+              }
+            ],
+            "description": "Information about who or what triggered the action"
           },
-          "updated_at": {
-            "type": "string",
-            "title": "Updated At",
-            "description": "Last updated date timestamp."
+          "instance_created": {
+            "type": "integer",
+            "title": "Instance Created",
+            "description": "Instance creation count"
+          },
+          "atm_timezone_configuration_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atm Timezone Configuration Id",
+            "description": "Timezone configuration identifier"
           }
         },
         "type": "object",
         "required": [
-          "cognito_user_id",
-          "first_name",
-          "last_name",
-          "full_name",
-          "email",
-          "time_zone",
-          "tenant_id",
-          "created_by",
+          "atm_queue_id",
           "created_at",
-          "updated_by",
-          "updated_at"
+          "is_active",
+          "is_live",
+          "queue_name",
+          "task_summary",
+          "task_instruction",
+          "manual_assignment",
+          "advanced_priority",
+          "priority",
+          "task_type",
+          "task_name",
+          "max_snooze_time",
+          "due_date_relative",
+          "escalation_queue",
+          "assignee_level",
+          "trigger_type",
+          "trigger_name",
+          "labels",
+          "flow_id",
+          "filevine_project_type_id",
+          "triggered_by",
+          "instance_created"
         ],
-        "title": "UserObject"
+        "title": "QueueObject"
       },
-      "UserPutSuccessResponse": {
+      "TriggeredBy": {
         "properties": {
-          "result": {
-            "type": "string",
-            "title": "Result",
-            "description": "Response description."
-          },
-          "correlation_id": {
-            "type": "string",
-            "title": "Correlation Id",
-            "description": "Process UUID."
-          },
-          "cognito_user_id": {
-            "type": "string",
-            "title": "Cognito User Id",
-            "description": "User unique identifier."
-          }
-        },
-        "type": "object",
-        "required": [
-          "result",
-          "correlation_id",
-          "cognito_user_id"
-        ],
-        "title": "UserPutSuccessResponse"
-      },
-      "UserUpdateBody": {
-        "properties": {
-          "first_name": {
-            "type": "string",
-            "title": "First Name",
-            "description": "User first name."
-          },
-          "last_name": {
-            "type": "string",
-            "title": "Last Name",
-            "description": "User last name."
-          },
-          "time_zone": {
+          "target_queue_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -788,29 +379,28 @@ var temp = {
                 "type": "null"
               }
             ],
-            "title": "Time Zone",
-            "description": "User time zone."
+            "title": "Target Queue Id",
+            "description": "Source queue identifier for the trigger"
           },
-          "is_active": {
+          "queue_name": {
             "anyOf": [
               {
-                "type": "boolean"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Is Active",
-            "default": true
+            "title": "Queue Name",
+            "description": "Source queue name for the trigger"
           }
         },
         "type": "object",
         "required": [
-          "first_name",
-          "last_name",
-          "time_zone"
+          "target_queue_id",
+          "queue_name"
         ],
-        "title": "UserUpdateBody"
+        "title": "TriggeredBy"
       }
     },
     "securitySchemes": {
@@ -825,7 +415,6 @@ var temp = {
       },
       "oauth2": {
         "type": "oauth2",
-        "scheme": "basic",
         "flows": {
           "clientCredentials": {
             "authorizationUrl": "http://example.com/auth/authorize",
@@ -851,7 +440,7 @@ var temp = {
   },
   "tags": [
     {
-      "name": "Users"
+      "name": "Queues"
     }
   ]
 }
