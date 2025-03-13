@@ -16,76 +16,20 @@ provider:
   stage: ${self:custom.common.provider.stage}
 
   deploymentBucket:
-    name: ${self:custom.common.service}-${self:provider.stage}-deployment-s3bucketenvironment
-    
+    name: ${self:custom.common.service}-${self:provider.stage}-deployment
+
   memorySize: ${self:custom.common.provider.memorySize}
   timeout: ${self:custom.common.provider.timeout}
 
-  environment:
-    APP_NAME: ${self:custom.common.service}-${self:custom.common.provider.stage}
-    SERVICE_NAME: users
-    CORALOGIX_SECRET: 
-      Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-CoralogixSecret
-    REGION_NAME: ${self:provider.region}
-    STAGE: ${self:provider.stage}
-    PROFILE: ${self:custom.common.environment.PROFILE}
-    RESOURCE_METHOD: ${self:custom.common.environment.RESOURCE_METHOD}
-    CUSTOM_LOGGER_TABLE_NAME:
-      Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-CustomLoggerTable
-    DATABASE_NAME: 
-      Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-DatabaseName
-    DB_CLUSTER_ARN:
-      Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-DbClusterARN
-    DB_CREDENTIALS_SECRETS_STORE_ARN:
-      Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-DbCredentialsSecretsStoreARN
-    APPKEY_SECRET_ARN:
-      Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-AppKeySecretARN
-
-  apiGateway:
-    restApiId:
-      Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ExtApiGatewayRestApiId
-    restApiRootResourceId:
-      Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ExtApiGatewayRestApiRootResourceId
-
-  iam:
-    role:
-      statements:
-        - Effect: "Allow"
-          Resource:
-            - Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-CoralogixSecret
-            - Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-AppKeySecretARN
-            - Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-DbCredentialsSecretsStoreARN
-          Action:
-            - secretsmanager:GetSecretValue
-        - Effect: "Allow"
-          Resource:
-            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-DbClusterARN
-          Action:
-            - rds-data:ExecuteStatement
-            - rds-data:BeginTransaction
-            - rds-data:CommitTransaction
-            - rds-data:RollbackTransaction
-        - Effect: "Allow"
-          Resource:
-            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-CustomLoggerTableARN
-          Action:
-            - dynamodb:GetItem
-            - dynamodb:PutItem
 
   layers:
     - Ref: PythonRequirementsLambdaLayer
-    - Ref: UtilsLambdaLayer
 
-package: 
+package:
   individually: true
   patterns:
     - '!./**'
 
-layers:
-  Utils:
-    name: ${self:service}-${self:provider.stage}-utils
-    package:
-      artifact: ./../../../Utils.zip
 
 functions:
   - ${file(./functions/users.yml)}

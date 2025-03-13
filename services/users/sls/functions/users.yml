@@ -16,16 +16,16 @@ UsersGet:
         cors:
           origins:
             - '*'
-          headers:	
+          headers:
             - '*'
-          allowCredentials: true
-        authorizer:
-          type: COGNITO_USER_POOLS
-          scopes:
-            - aws.cognito.signin.user.admin
-            - apiauthidentifier/json.read
-          authorizerId:
-            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer
+          #allowCredentials: true
+        #authorizer:
+        #  type: COGNITO_USER_POOLS
+        #  scopes:
+        #    - aws.cognito.signin.user.admin
+        #    - apiauthidentifier/json.read
+        #  authorizerId:
+           # Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer
 
 UserGet:
   handler: src/handlers/user_get.lambda_handler
@@ -47,14 +47,6 @@ UserGet:
             - '*'
           headers:	
             - '*'
-          allowCredentials: true
-        authorizer:
-          type: COGNITO_USER_POOLS
-          scopes:
-            - aws.cognito.signin.user.admin
-            - apiauthidentifier/json.read
-          authorizerId:
-            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer
 
 UserPut:
   handler: src/handlers/user_put.lambda_handler
@@ -77,14 +69,7 @@ UserPut:
             - '*'
           headers:	
             - '*'
-          allowCredentials: true
-        authorizer:
-          type: COGNITO_USER_POOLS
-          scopes:
-            - aws.cognito.signin.user.admin
-            - apiauthidentifier/json.read
-          authorizerId:
-            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer
+        
 
 UserPost:
   handler: src/handlers/user_post.lambda_handler
@@ -106,11 +91,3 @@ UserPost:
             - '*'
           headers:	
             - '*'
-          allowCredentials: true
-        authorizer:
-          type: COGNITO_USER_POOLS
-          scopes:
-            - aws.cognito.signin.user.admin
-            - apiauthidentifier/json.read
-          authorizerId:
-            Fn::ImportValue: ${self:custom.common.service}core-${self:provider.stage}-ApiGatewayAuthorizer
